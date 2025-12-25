@@ -40,7 +40,7 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
                     match: masterCode
                         .map { code.match(against: $0)[index] }
                 )
-                .contentShape(Rectangle())
+                    .contentShape(Rectangle())
                     .padding(Selection.border)
                     .background {
                         if selection == index, code.kind == .guess {
@@ -58,7 +58,8 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
                         }
                     }
             }
-            Color.clear.aspectRatio(1, contentMode: .fit)
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
                 .overlay {
                     ancillaryView()
                 }

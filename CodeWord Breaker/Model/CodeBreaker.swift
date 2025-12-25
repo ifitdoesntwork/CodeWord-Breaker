@@ -13,10 +13,8 @@ struct CodeBreaker {
     var masterCode: Code
     var guess = Code(kind: .guess)
     var attempts = [Code]()
-    let pegChoices: [Peg]
     
     init(answer: String) {
-        pegChoices = .keyboard
         masterCode = .init(
             kind: .master(isHidden: true),
             pegs: answer.map(Peg.init)
@@ -48,10 +46,3 @@ struct CodeBreaker {
         guess.pegs[index] = peg
     }
 }
-
-extension Array where Element == String {
-    static let keyboard = "QWERTYUIOPASDFGHJKLZXCVBNM"
-        .map(String.init)
-}
-
-
