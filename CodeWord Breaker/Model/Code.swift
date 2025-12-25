@@ -9,7 +9,7 @@ import Foundation
 
 struct Code {
     var kind: Kind
-    var pegs: [Peg] = .init(repeating: .missing, count: 4)
+    var pegs: [Peg] = .init(repeating: .missing, count: 5)
     
     var word: String {
         get { pegs.joined() }
@@ -31,7 +31,7 @@ struct Code {
     }
     
     mutating func reset() {
-        pegs = .init(repeating: .missing, count: 4)
+        pegs = .init(repeating: .missing, count: 5)
     }
     
     var matches: [Match]? {

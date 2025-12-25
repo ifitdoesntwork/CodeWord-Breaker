@@ -12,8 +12,9 @@ struct CodeWordBreakerView: View {
     @Environment(\.words) var words
     
     // MARK: Data Owned by Me
-    @State private var game = CodeBreaker(answer: "")
-    @State private var selection: Int = 0
+    @State private var game = CodeBreaker(answer: "AWAIT")
+    @State private var selection = 0
+    @State private var checker = UITextChecker()
     
     // MARK: - Body
     
@@ -23,11 +24,19 @@ struct CodeWordBreakerView: View {
             ScrollView {
                 if !game.isOver {
                     CodeView(code: game.guess, selection: $selection) {
-                        guessButton
+                        if
+                            checker.isAWord(game.guess.word.capitalized)
+                            && game.guess.word.count == game.masterCode.word.count
+                        {
+                            guessButton
+                        }
                     }
                 }
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
-                    CodeView(code: game.attempts[index])
+                    CodeView(
+                        code: game.attempts[index],
+                        masterCode: game.masterCode
+                    )
                 }
             }
             PegChooser(choices: game.pegChoices) { peg in
@@ -36,8 +45,10 @@ struct CodeWordBreakerView: View {
             }
         }
         .padding()
-        .onAppear {
-            game = CodeBreaker(answer: words.random(length: 4) ?? "")
+        .onChange(of: words.count) {
+            if game.attempts.count == 0 {
+                game = CodeBreaker(answer: words.random(length: 5) ?? "ERROR")
+            }
         }
     }
     

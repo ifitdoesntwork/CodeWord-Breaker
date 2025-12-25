@@ -10,6 +10,7 @@ import SwiftUI
 struct CodeView<AncillaryView>: View where AncillaryView: View {
     // MARK: Data In
     let code: Code
+    let masterCode: Code?
     
     // MARK: Data Shared with Me
     @Binding var selection: Int
@@ -19,12 +20,14 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     
     init(
         code: Code,
+        masterCode: Code? = nil,
         selection: Binding<Int> = .constant(-1),
         @ViewBuilder ancillaryView: @escaping () -> AncillaryView = { EmptyView() }
     ) {
         self.code = code
         self._selection = selection
         self.ancillaryView = ancillaryView
+        self.masterCode = masterCode
     }
     
     // MARK: - Body
@@ -32,7 +35,12 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     var body: some View {
         HStack {
             ForEach(code.pegs.indices, id: \.self) { index in
-                PegView(peg: code.pegs[index])
+                PegView(
+                    peg: code.pegs[index],
+                    match: masterCode
+                        .map { code.match(against: $0)[index] }
+                )
+                .contentShape(Rectangle())
                     .padding(Selection.border)
                     .background {
                         if selection == index, code.kind == .guess {
@@ -69,6 +77,7 @@ fileprivate struct Selection {
 #Preview {
     CodeView(
         code: .init(kind: .guess, pegs: ["A", "B", "C", "D"]),
+        masterCode: .init(kind: .master(isHidden: true), pegs: ["A", "A", "B"]),
         selection: .constant(1),
         ancillaryView: { Button("Guess") {}.flexibleSystemFont() }
     )
