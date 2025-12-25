@@ -11,13 +11,17 @@ typealias Peg = String
 
 struct CodeBreaker {
     var masterCode: Code
-    var guess = Code(kind: .guess)
+    var guess: Code
     var attempts = [Code]()
     
     init(answer: String) {
         masterCode = .init(
             kind: .master(isHidden: true),
             pegs: answer.map(Peg.init)
+        )
+        guess = .init(
+            kind: .guess,
+            pegs: .init(repeating: .missing, count: answer.count)
         )
         print(masterCode)
     }

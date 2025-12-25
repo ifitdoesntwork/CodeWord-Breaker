@@ -16,10 +16,18 @@ struct CodeWordBreakerView: View {
     @State private var selection = 0
     @State private var checker = UITextChecker()
     
+    var newGame: CodeBreaker {
+        CodeBreaker(answer: words.random(length: .random(in: 3...5)) ?? "ERROR")
+    }
+    
     // MARK: - Body
     
     var body: some View {
         VStack {
+            Button("Restart", systemImage: "arrow.circlepath") {
+                selection = .zero
+                game = newGame
+            }
             CodeView(code: game.masterCode)
             ScrollView {
                 if !game.isOver {
@@ -47,7 +55,7 @@ struct CodeWordBreakerView: View {
         .padding()
         .onChange(of: words.count) {
             if game.attempts.count == 0 {
-                game = CodeBreaker(answer: words.random(length: 5) ?? "ERROR")
+                game = newGame
             }
         }
     }
