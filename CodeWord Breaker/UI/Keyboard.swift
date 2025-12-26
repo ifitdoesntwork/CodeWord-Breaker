@@ -8,25 +8,34 @@
 import SwiftUI
 
 struct Keyboard: View {
+    // MARK: Data In
+    let canReturn: Bool
+    
     // MARK: Data In Function
     var match: (Peg) -> Match?
     
-    // MARK: Data Out Function
+    // MARK: Data Out Functions
     var onChoose: ((Peg) -> Void)?
+    var onBackspace: () -> Void
+    var onReturn: () -> Void
 
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: .zero) {
-            ForEach(["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"], id: \.self) { row in
-                HStack(spacing: .zero) {
-                    ForEach(row.map(String.init), id: \.self) { key in
-                        view(for: key)
+        HStack(spacing: .zero) {
+            VStack(spacing: .zero) {
+                ForEach(["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"], id: \.self) { row in
+                    HStack(spacing: .zero) {
+                        ForEach(row.map(String.init), id: \.self) { key in
+                            view(for: key)
+                        }
                     }
                 }
             }
+            .aspectRatio(10/3, contentMode: .fit)
+            
+            ancillaries
         }
-        .aspectRatio(10/3, contentMode: .fit)
     }
     
     func view(for key: Peg) -> some View {
@@ -42,11 +51,31 @@ struct Keyboard: View {
                 }
             }
     }
+    
+    var ancillaries: some View {
+        VStack {
+            Button("⌫", action: onBackspace)
+                .flexibleSystemFont()
+                .frame(width: 40, height: 40)
+            Spacer()
+                .aspectRatio(10, contentMode: .fit)
+            Button("↩︎", action: onReturn)
+                .disabled(!canReturn)
+                .flexibleSystemFont()
+                .frame(width: 40, height: 40)
+        }
+    }
 }
 
 #Preview {
-    Keyboard { _ in nil } onChoose: { key in
+    Keyboard(canReturn: true) { _ in
+        nil
+    } onChoose: { key in
         print("chose \(key)")
+    } onBackspace: {
+        
+    } onReturn: {
+        
     }
     .padding()
 }

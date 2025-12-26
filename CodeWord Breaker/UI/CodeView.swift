@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CodeView<AncillaryView>: View where AncillaryView: View {
+struct CodeView: View {
     // MARK: Data In
     let code: Code
     let masterCode: Code?
@@ -16,9 +16,6 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     @Binding var selection: Int
     @Binding var hidesMasterCode: Bool
     
-    // MARK: Data (sort of) In Function
-    @ViewBuilder let ancillaryView: () -> AncillaryView
-    
     // MARK: Data Owned by Me
     @Namespace private var selectionNamespace
     
@@ -26,13 +23,11 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
         code: Code,
         masterCode: Code? = nil,
         selection: Binding<Int> = .constant(-1),
-        hidesMasterCode: Binding<Bool> = .constant(false),
-        @ViewBuilder ancillaryView: @escaping () -> AncillaryView = { EmptyView() }
+        hidesMasterCode: Binding<Bool> = .constant(false)
     ) {
         self.code = code
         self._selection = selection
         self._hidesMasterCode = hidesMasterCode
-        self.ancillaryView = ancillaryView
         self.masterCode = masterCode
     }
     
@@ -48,11 +43,6 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
                         }
                     }
             }
-            Color.clear
-                .aspectRatio(1, contentMode: .fit)
-                .overlay {
-                    ancillaryView()
-                }
         }
     }
     
@@ -100,8 +90,7 @@ fileprivate struct Selection {
     CodeView(
         code: .init(kind: .guess, pegs: ["A", "B", "C", "D"]),
         masterCode: .init(kind: .master(isHidden: true), pegs: ["A", "A", "B"]),
-        selection: .constant(1),
-        ancillaryView: { Button("Guess") {}.flexibleSystemFont() }
+        selection: .constant(1)
     )
     .padding()
 }

@@ -71,15 +71,8 @@ struct CodeWordBreakerView: View {
     var gameField: some View {
         ScrollView {
             if !game.isOver {
-                CodeView(code: game.guess, selection: $selection) {
-                    if
-                        checker.isAWord(game.guess.word.capitalized)
-                        && game.guess.word.count == game.masterCode.word.count
-                    {
-                        guessButton
-                    }
-                }
-                .animation(nil, value: game.attempts.count)
+                CodeView(code: game.guess, selection: $selection)
+                    .animation(nil, value: game.attempts.count)
             }
             ForEach(game.attempts.indices.reversed(), id: \.self) { index in
                 CodeView(
@@ -91,22 +84,25 @@ struct CodeWordBreakerView: View {
         }
     }
     
-    var guessButton: some View {
-        Button("Guess") {
-            withAnimation(.guess) {
-                game.attemptGuess()
-                selection = 0
-            }
-        }
-        .flexibleSystemFont()
-    }
-    
     @ViewBuilder
     var keyboard: some View {
         if !game.isOver {
-            Keyboard(match: game.bestMatch) { peg in
+            Keyboard(
+                canReturn: checker.isAWord(game.guess.word.capitalized)
+                    && game.guess.word.count == game.masterCode.word.count,
+                match: game.bestMatch
+            ) { peg in
                 game.setGuessPeg(peg, at: selection)
                 selection = (selection + 1) % game.masterCode.pegs.count
+            } onBackspace: {
+                let indexToMove = max(selection - 1, .zero)
+                game.guess.pegs[indexToMove] = .missing
+                selection = indexToMove
+            } onReturn: {
+                withAnimation(.guess) {
+                    game.attemptGuess()
+                    selection = 0
+                }
             }
             .transition(.keyboard)
         }
