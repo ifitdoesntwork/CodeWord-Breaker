@@ -64,14 +64,3 @@ struct CodeBreaker {
             }
     }
 }
-
-extension RangeReplaceableCollection {
-    
-    func appending(_ element: Element?) -> Self {
-        var result = self
-        if let element {
-            result.append(element)
-        }
-        return result
-    }
-}

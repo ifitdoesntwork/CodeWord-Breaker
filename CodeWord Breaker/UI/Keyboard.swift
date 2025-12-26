@@ -15,9 +15,11 @@ struct Keyboard: View {
     var match: (Peg) -> Match?
     
     // MARK: Data Out Functions
-    var onChoose: ((Peg) -> Void)?
-    var onBackspace: () -> Void
-    var onReturn: () -> Void
+    var actions: (
+        onChoose: ((Peg) -> Void)?,
+        onBackspace: () -> Void,
+        onReturn: () -> Void
+    )
 
     // MARK: - Body
     
@@ -43,7 +45,7 @@ struct Keyboard: View {
             .aspectRatio(contentMode: .fit)
             .overlay {
                 Button {
-                    onChoose?(key)
+                    actions.onChoose?(key)
                 } label: {
                     Text(key)
                         .flexibleSystemFont()
@@ -54,12 +56,12 @@ struct Keyboard: View {
     
     var ancillaries: some View {
         VStack {
-            Button("⌫", action: onBackspace)
+            Button("⌫", action: actions.onBackspace)
                 .flexibleSystemFont()
                 .frame(width: 40, height: 40)
             Spacer()
                 .aspectRatio(10, contentMode: .fit)
-            Button("↩︎", action: onReturn)
+            Button("↩︎", action: actions.onReturn)
                 .disabled(!canReturn)
                 .flexibleSystemFont()
                 .frame(width: 40, height: 40)
@@ -68,14 +70,16 @@ struct Keyboard: View {
 }
 
 #Preview {
-    Keyboard(canReturn: true) { _ in
-        nil
-    } onChoose: { key in
-        print("chose \(key)")
-    } onBackspace: {
-        
-    } onReturn: {
-        
-    }
+    Keyboard(
+        canReturn: true,
+        match: { _ in nil },
+        actions: (
+            onChoose: { key in
+                print("chose \(key)")
+            },
+            onBackspace: {},
+            onReturn: {}
+        )
+    )
     .padding()
 }

@@ -90,20 +90,25 @@ struct CodeWordBreakerView: View {
             Keyboard(
                 canReturn: checker.isAWord(game.guess.word.capitalized)
                     && game.guess.word.count == game.masterCode.word.count,
-                match: game.bestMatch
-            ) { peg in
-                game.setGuessPeg(peg, at: selection)
-                selection = (selection + 1) % game.masterCode.pegs.count
-            } onBackspace: {
-                let indexToMove = max(selection - 1, .zero)
-                game.guess.pegs[indexToMove] = .missing
-                selection = indexToMove
-            } onReturn: {
-                withAnimation(.guess) {
-                    game.attemptGuess()
-                    selection = 0
-                }
-            }
+                match: game.bestMatch,
+                actions: (
+                    onChoose: { peg in
+                        game.setGuessPeg(peg, at: selection)
+                        selection = (selection + 1) % game.masterCode.pegs.count
+                    },
+                    onBackspace: {
+                        let indexToMove = max(selection - 1, .zero)
+                        game.guess.pegs[indexToMove] = .missing
+                        selection = indexToMove
+                    },
+                    onReturn: {
+                        withAnimation(.guess) {
+                            game.attemptGuess()
+                            selection = 0
+                        }
+                    }
+                )
+            )
             .transition(.keyboard)
         }
     }
