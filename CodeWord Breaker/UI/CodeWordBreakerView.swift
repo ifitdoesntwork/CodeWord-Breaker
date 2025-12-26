@@ -34,26 +34,7 @@ struct CodeWordBreakerView: View {
                 }
             }
             CodeView(code: game.masterCode, hidesMasterCode: $hidesMasterCode)
-            ScrollView {
-                if !game.isOver {
-                    CodeView(code: game.guess, selection: $selection) {
-                        if
-                            checker.isAWord(game.guess.word.capitalized)
-                            && game.guess.word.count == game.masterCode.word.count
-                        {
-                            guessButton
-                        }
-                    }
-                    .animation(nil, value: game.attempts.count)
-                }
-                ForEach(game.attempts.indices.reversed(), id: \.self) { index in
-                    CodeView(
-                        code: game.attempts[index],
-                        masterCode: game.masterCode
-                    )
-                    .transition(.attempt(game.isOver))
-                }
-            }
+            gameField
         }
         .padding()
         .onChange(of: words.count) {
@@ -62,12 +43,29 @@ struct CodeWordBreakerView: View {
             }
         }
         
-        if !game.isOver {
-            Keyboard() { peg in
-                game.setGuessPeg(peg, at: selection)
-                selection = (selection + 1) % game.masterCode.pegs.count
+        keyboard
+    }
+    
+    var gameField: some View {
+        ScrollView {
+            if !game.isOver {
+                CodeView(code: game.guess, selection: $selection) {
+                    if
+                        checker.isAWord(game.guess.word.capitalized)
+                        && game.guess.word.count == game.masterCode.word.count
+                    {
+                        guessButton
+                    }
+                }
+                .animation(nil, value: game.attempts.count)
             }
-            .transition(.keyboard)
+            ForEach(game.attempts.indices.reversed(), id: \.self) { index in
+                CodeView(
+                    code: game.attempts[index],
+                    masterCode: game.masterCode
+                )
+                .transition(.attempt(game.isOver))
+            }
         }
     }
     
@@ -79,6 +77,17 @@ struct CodeWordBreakerView: View {
             }
         }
         .flexibleSystemFont()
+    }
+    
+    @ViewBuilder
+    var keyboard: some View {
+        if !game.isOver {
+            Keyboard() { peg in
+                game.setGuessPeg(peg, at: selection)
+                selection = (selection + 1) % game.masterCode.pegs.count
+            }
+            .transition(.keyboard)
+        }
     }
 }
 

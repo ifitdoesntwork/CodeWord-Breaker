@@ -39,35 +39,9 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     // MARK: - Body
     
     var body: some View {
-        let hidesCode = code.isHidden
-        || (code.kind == .master(isHidden: false) && hidesMasterCode)
-        
         HStack {
             ForEach(code.pegs.indices, id: \.self) { index in
-                PegView(
-                    peg: hidesCode ? .missing : code.pegs[index],
-                    match: masterCode
-                        .map { code.match(against: $0)[index] }
-                )
-                    .contentShape(Rectangle())
-                    .padding(Selection.border)
-                    .background {
-                        Group {
-                            if selection == index, code.kind == .guess {
-                                Selection.shape
-                                    .foregroundStyle(Selection.color)
-                                    .matchedGeometryEffect(
-                                        id: "selection",
-                                        in: selectionNamespace
-                                    )
-                            }
-                        }
-                        .animation(.selection, value: selection)
-                    }
-                    .overlay {
-                        Selection.shape
-                            .foregroundStyle(code.isHidden ? Color.gray : .clear)
-                    }
+                viewForPeg(at: index)
                     .onTapGesture {
                         if code.kind == .guess {
                             selection = index
@@ -80,7 +54,38 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
                     ancillaryView()
                 }
         }
-
+    }
+    
+    func viewForPeg(at index: Int) -> some View {
+        let hidesCode = code.isHidden
+        || (code.kind == .master(isHidden: false) && hidesMasterCode)
+        
+        return PegView(
+            peg: hidesCode ? .missing : code.pegs[index],
+            match: masterCode
+                .map { code.match(against: $0)[index] }
+        )
+        .contentShape(Rectangle())
+        .padding(Selection.border)
+        .background { viewForSelection(at: index) }
+        .overlay {
+            Selection.shape
+                .foregroundStyle(code.isHidden ? Color.gray : .clear)
+        }
+    }
+    
+    func viewForSelection(at index: Int) -> some View {
+        Group {
+            if selection == index, code.kind == .guess {
+                Selection.shape
+                    .foregroundStyle(Selection.color)
+                    .matchedGeometryEffect(
+                        id: "selection",
+                        in: selectionNamespace
+                    )
+            }
+        }
+        .animation(.selection, value: selection)
     }
 }
 
