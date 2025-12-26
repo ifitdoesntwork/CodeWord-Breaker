@@ -26,6 +26,12 @@ extension AnyTransition {
 }
 
 extension View {
+    func celebration(isOn: Bool) -> some View {
+        self
+            .rotation3DEffect(.degrees(isOn ? 0 : 360), axis: (0, 1, 0))
+            .offset(x: .zero, y: isOn ? -10 : 0)
+    }
+    
     func flexibleSystemFont(minimum: CGFloat = 8, maximum: CGFloat = 80) -> some View {
         self
             .font(.system(size: maximum))
@@ -34,6 +40,12 @@ extension View {
 }
 
 extension Color {
+    init(light: Color, dark: Color) {
+        self = .init(uiColor: .init { traits in
+            traits.userInterfaceStyle == .light ? .init(light) : .init(dark)
+        })
+    }
+    
     static func gray(_ brightness: CGFloat) -> Color {
         Color(hue: 148/360, saturation: 0, brightness: brightness)
     }
