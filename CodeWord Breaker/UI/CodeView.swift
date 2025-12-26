@@ -14,18 +14,24 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     
     // MARK: Data Shared with Me
     @Binding var selection: Int
+    @Binding var hidesMasterCode: Bool
     
     // MARK: Data (sort of) In Function
     @ViewBuilder let ancillaryView: () -> AncillaryView
+    
+    // MARK: Data Owned by Me
+    @Namespace private var selectionNamespace
     
     init(
         code: Code,
         masterCode: Code? = nil,
         selection: Binding<Int> = .constant(-1),
+        hidesMasterCode: Binding<Bool> = .constant(false),
         @ViewBuilder ancillaryView: @escaping () -> AncillaryView = { EmptyView() }
     ) {
         self.code = code
         self._selection = selection
+        self._hidesMasterCode = hidesMasterCode
         self.ancillaryView = ancillaryView
         self.masterCode = masterCode
     }
@@ -33,20 +39,30 @@ struct CodeView<AncillaryView>: View where AncillaryView: View {
     // MARK: - Body
     
     var body: some View {
+        let hidesCode = code.isHidden
+        || (code.kind == .master(isHidden: false) && hidesMasterCode)
+        
         HStack {
             ForEach(code.pegs.indices, id: \.self) { index in
                 PegView(
-                    peg: code.pegs[index],
+                    peg: hidesCode ? .missing : code.pegs[index],
                     match: masterCode
                         .map { code.match(against: $0)[index] }
                 )
                     .contentShape(Rectangle())
                     .padding(Selection.border)
                     .background {
-                        if selection == index, code.kind == .guess {
-                            Selection.shape
-                                .foregroundStyle(Selection.color)
+                        Group {
+                            if selection == index, code.kind == .guess {
+                                Selection.shape
+                                    .foregroundStyle(Selection.color)
+                                    .matchedGeometryEffect(
+                                        id: "selection",
+                                        in: selectionNamespace
+                                    )
+                            }
                         }
+                        .animation(.selection, value: selection)
                     }
                     .overlay {
                         Selection.shape

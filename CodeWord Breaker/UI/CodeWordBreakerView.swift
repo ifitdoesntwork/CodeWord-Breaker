@@ -14,6 +14,7 @@ struct CodeWordBreakerView: View {
     // MARK: Data Owned by Me
     @State private var game = CodeBreaker(answer: "AWAIT")
     @State private var selection = 0
+    @State private var hidesMasterCode = false
     @State private var checker = UITextChecker()
     
     var newGame: CodeBreaker {
@@ -25,10 +26,14 @@ struct CodeWordBreakerView: View {
     var body: some View {
         VStack {
             Button("Restart", systemImage: "arrow.circlepath") {
-                selection = .zero
-                game = newGame
+                hidesMasterCode = true
+                withAnimation(.restart) {
+                    hidesMasterCode = false
+                    selection = .zero
+                    game = newGame
+                }
             }
-            CodeView(code: game.masterCode)
+            CodeView(code: game.masterCode, hidesMasterCode: $hidesMasterCode)
             ScrollView {
                 if !game.isOver {
                     CodeView(code: game.guess, selection: $selection) {
@@ -39,17 +44,15 @@ struct CodeWordBreakerView: View {
                             guessButton
                         }
                     }
+                    .animation(nil, value: game.attempts.count)
                 }
                 ForEach(game.attempts.indices.reversed(), id: \.self) { index in
                     CodeView(
                         code: game.attempts[index],
                         masterCode: game.masterCode
                     )
+                    .transition(.attempt(game.isOver))
                 }
-            }
-            Keyboard() { peg in
-                game.setGuessPeg(peg, at: selection)
-                selection = (selection + 1) % game.masterCode.pegs.count
             }
         }
         .padding()
@@ -58,11 +61,19 @@ struct CodeWordBreakerView: View {
                 game = newGame
             }
         }
+        
+        if !game.isOver {
+            Keyboard() { peg in
+                game.setGuessPeg(peg, at: selection)
+                selection = (selection + 1) % game.masterCode.pegs.count
+            }
+            .transition(.keyboard)
+        }
     }
     
     var guessButton: some View {
         Button("Guess") {
-            withAnimation {
+            withAnimation(.guess) {
                 game.attemptGuess()
                 selection = 0
             }
