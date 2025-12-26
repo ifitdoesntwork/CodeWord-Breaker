@@ -38,3 +38,18 @@ extension Color {
         Color(hue: 148/360, saturation: 0, brightness: brightness)
     }
 }
+
+extension Match? {
+    var color: Color {
+        switch self {
+        case .noMatch:
+            .red
+        case .exact:
+            .green
+        case .inexact:
+            .orange
+        case .none:
+            .primary
+        }
+    }
+}

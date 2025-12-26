@@ -82,7 +82,7 @@ struct CodeWordBreakerView: View {
     @ViewBuilder
     var keyboard: some View {
         if !game.isOver {
-            Keyboard() { peg in
+            Keyboard(match: game.bestMatch) { peg in
                 game.setGuessPeg(peg, at: selection)
                 selection = (selection + 1) % game.masterCode.pegs.count
             }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct Keyboard: View {
+    // MARK: Data In Function
+    var match: (Peg) -> Match?
     
     // MARK: Data Out Function
     var onChoose: ((Peg) -> Void)?
@@ -36,13 +38,14 @@ struct Keyboard: View {
                 } label: {
                     Text(key)
                         .flexibleSystemFont()
+                        .foregroundStyle(match(key).color)
                 }
             }
     }
 }
 
 #Preview {
-    Keyboard() { key in
+    Keyboard { _ in nil } onChoose: { key in
         print("chose \(key)")
     }
     .padding()

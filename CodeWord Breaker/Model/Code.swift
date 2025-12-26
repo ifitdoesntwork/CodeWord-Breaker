@@ -54,7 +54,7 @@ struct Code {
                     pegsToMatch.remove(at: index)
                     return Match.exact
                 } else {
-                    return .nomatch
+                    return .noMatch
                 }
             }
         
@@ -75,10 +75,10 @@ struct Code {
     }
 }
 
-enum Match {
-    case nomatch
+enum Match: Comparable {
     case exact
     case inexact
+    case noMatch
 }
 
 extension Peg {

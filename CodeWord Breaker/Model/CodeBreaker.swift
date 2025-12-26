@@ -49,4 +49,29 @@ struct CodeBreaker {
         
         guess.pegs[index] = peg
     }
+    
+    func bestMatch(for peg: Peg) -> Match? {
+        attempts
+            .reduce(nil) { result, code in
+                code.pegs
+                    .enumerated()
+                    .filter { $0.element == peg }
+                    .map(\.offset)
+                    .map { code.match(against: masterCode)[$0] }
+                    .appending(result)
+                    .sorted()
+                    .first
+            }
+    }
+}
+
+extension RangeReplaceableCollection {
+    
+    func appending(_ element: Element?) -> Self {
+        var result = self
+        if let element {
+            result.append(element)
+        }
+        return result
+    }
 }

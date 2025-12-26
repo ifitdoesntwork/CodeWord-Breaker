@@ -15,24 +15,13 @@ struct PegView: View {
     // MARK: - Body
     
     var body: some View {
-        Circle()
-            .stroke(match.color, lineWidth: 3)
-            .overlay { Text(peg).flexibleSystemFont() }
-    }
-}
-
-extension Match? {
-    var color: Color {
-        switch self {
-        case .nomatch:
-            .red
-        case .exact:
-            .green
-        case .inexact:
-            .yellow
-        case .none:
-            .clear
-        }
+        Color.clear
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                Text(peg)
+                    .flexibleSystemFont()
+                    .foregroundStyle(match.color)
+            }
     }
 }
 
