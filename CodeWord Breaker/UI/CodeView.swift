@@ -43,6 +43,14 @@ struct CodeView: View {
             }
         }
         .onChange(of: code.isHidden) { configureCelebration(isHidden: $1) }
+        .onAppear {
+            if code.kind == .master(isHidden: false) {
+                configureCelebration(isHidden: false)
+            }
+        }
+        .onDisappear {
+            celebration = nil
+        }
     }
     
     func peg(at index: Int) -> some View {

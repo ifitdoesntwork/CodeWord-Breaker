@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CodeWordBreakerView: View {    
     // MARK: Data Owned by Me
-    @State private var game = CodeBreaker(answer: "AWAIT")
+    @Binding var game: CodeBreaker
     @State private var selection = 0
     @State private var checker = UITextChecker()
     
@@ -72,5 +72,7 @@ struct CodeWordBreakerView: View {
 }
 
 #Preview {
-    CodeWordBreakerView()
+    @Previewable @State var game = CodeBreaker(answer: "AWAIT")
+    
+    CodeWordBreakerView(game: $game)
 }

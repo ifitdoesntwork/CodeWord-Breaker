@@ -22,7 +22,7 @@ struct GameChooser: View {
                     games
                         .sorted { $0.lastAttemptTime > $1.lastAttemptTime }
                 ) { game in
-                    Text(game.attempts.last?.word ?? "No attempts yet")
+                    link(to: game)
                 }
             }
             .listStyle(.plain)
@@ -34,6 +34,19 @@ struct GameChooser: View {
                 }
                 .disabled(words.count == .zero)
             }
+        }
+    }
+    
+    func link(to game: CodeBreaker) -> some View {
+        NavigationLink {
+            if
+                let index = games
+                    .firstIndex(where: { $0.id == game.id })
+            {
+                CodeWordBreakerView(game: $games[index])
+            }
+        } label: {
+            Text(game.attempts.last?.word ?? "No attempts yet")
         }
     }
 }
