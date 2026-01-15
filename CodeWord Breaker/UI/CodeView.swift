@@ -16,7 +16,7 @@ struct CodeView: View {
     @Binding var selection: Int
     
     // MARK: Data Owned by Me
-    @State var celebration: Int?
+    @State var celebratingIndex: Int?
     @Namespace private var namespace
     
     init(
@@ -42,9 +42,9 @@ struct CodeView: View {
                     }
             }
         }
-        .onChange(of: code.isHidden) { configureCelebration(isHidden: $1) }
-        .onAppear { configureCelebration() }
-        .onDisappear { celebration = nil }
+        .onChange(of: code.isHidden) { configureCelebration(isRunning: !$1) }
+        .onAppear { configureCelebration(isRunning: true) }
+        .onDisappear { configureCelebration(isRunning: false) }
     }
     
     func peg(at index: Int) -> some View {
@@ -53,7 +53,7 @@ struct CodeView: View {
             match: masterCode
                 .map { code.match(against: $0)[index] }
         )
-        .celebration(isOn: celebration == index)
+        .celebration(isOn: index == celebratingIndex)
         .contentShape(Rectangle())
         .padding(Selection.border)
         .background { selection(at: index) }
@@ -74,20 +74,23 @@ struct CodeView: View {
         .animation(.selection, value: selection)
     }
     
-    func configureCelebration(isHidden: Bool = false) {
-        guard
-            !isHidden,
+    func configureCelebration(isRunning: Bool) {
+        if
+            isRunning,
             code.kind == .master(isHidden: false)
-        else {
-            celebration = nil
-            return
+        {
+            celebrate()
+        } else {
+            celebratingIndex = nil
         }
-        
+    }
+    
+    func celebrate() {
         withAnimation {
-            celebration = ((celebration ?? -1) + 1) % code.pegs.count
+            celebratingIndex = ((celebratingIndex ?? -1) + 1) % code.pegs.count
         } completion: {
-            if celebration != nil {
-                configureCelebration()
+            if celebratingIndex != nil {
+                celebrate()
             }
         }
     }

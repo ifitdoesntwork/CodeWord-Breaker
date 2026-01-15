@@ -7,9 +7,11 @@
 
 import SwiftUI
 
-struct CodeWordBreakerView: View {    
-    // MARK: Data Owned by Me
+struct CodeWordBreakerView: View {
+    // MARK: Data Shared with Me
     @Binding var game: CodeBreaker
+    
+    // MARK: Data Owned by Me
     @State private var selection = 0
     @State private var checker = UITextChecker()
     
@@ -21,6 +23,9 @@ struct CodeWordBreakerView: View {
             gameField
         }
         .padding()
+        .onChange(of: game.id) {
+            selection = .zero
+        }
         
         keyboard
     }

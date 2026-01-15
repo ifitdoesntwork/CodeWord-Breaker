@@ -13,51 +13,62 @@ struct GameChooser: View {
     
     // MARK: Data Owned by Me
     @State private var games = [CodeBreaker]()
+    @State private var selection: CodeBreaker.ID?
     @State private var length = 5
     
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(
-                    games
-                        .sorted { $0.lastAttemptTime > $1.lastAttemptTime }
-                ) { game in
-                    link(to: game)
-                }
+        NavigationSplitView {
+            List(
+                games.sorted { $0.lastAttemptTime > $1.lastAttemptTime },
+                selection: $selection
+            ) { game in
+                NavigationLink { gameView } label: { summary(of: game) }
             }
             .listStyle(.plain)
             .toolbar {
-                Button("Add Game", systemImage: "plus") {
-                    games.append(.init(
-                        answer: words.random(length: length) ?? "ERROR"
-                    ))
-                }
-                .disabled(words.count == .zero)
+                addGameButton
             }
+        } detail: {
+            gameView
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+    
+    @ViewBuilder
+    var gameView: some View {
+        if let index = games.firstIndex(where: { $0.id == selection }) {
+            CodeWordBreakerView(game: $games[index])
+        } else {
+            Text("Choose a game!")
         }
     }
     
-    func link(to game: CodeBreaker) -> some View {
-        NavigationLink {
-            if
-                let index = games
-                    .firstIndex(where: { $0.id == game.id })
-            {
-                CodeWordBreakerView(game: $games[index])
+    func summary(of game: CodeBreaker) -> some View {
+        VStack(alignment: .leading) {
+            CodeView(
+                code: game.attempts.last ?? game.masterCode,
+                masterCode: game.masterCode
+            )
+            .overlay {
+                Color.clear
+                    .contentShape(Rectangle())
             }
-        } label: {
-            VStack(alignment: .leading) {
-                CodeView(
-                    code: game.attempts.last ?? game.masterCode,
-                    masterCode: game.masterCode
-                )
-                .overlay {
-                    Color.clear
-                        .contentShape(Rectangle())
-                }
-                Text("^[\(game.attempts.count) attempt](inflect: true)")
+            Text("^[\(game.attempts.count) attempt](inflect: true)")
+        }
+    }
+    
+    var addGameButton: some View {
+        Button("Add Game", systemImage: "plus") {
+            withAnimation {
+                games.append(.init(
+                    answer: words.random(length: length) ?? "ERROR"
+                ))
+            }
+            if games.count == 1 {
+                selection = games.first?.id
             }
         }
+        .disabled(words.count == .zero)
     }
 }
 
