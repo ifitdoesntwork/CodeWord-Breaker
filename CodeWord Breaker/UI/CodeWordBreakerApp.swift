@@ -11,7 +11,7 @@ import SwiftUI
 struct CodeWordBreakerApp: App {
     var body: some Scene {
         WindowGroup {
-            CodeWordBreakerView()
+            GameChooser()
         }
     }
 }

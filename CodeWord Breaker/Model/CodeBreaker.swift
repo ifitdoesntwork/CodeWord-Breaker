@@ -64,3 +64,9 @@ struct CodeBreaker {
             }
     }
 }
+
+extension CodeBreaker: Identifiable {
+    var id: String {
+        masterCode.word
+    }
+}
