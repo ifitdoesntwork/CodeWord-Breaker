@@ -7,19 +7,11 @@
 
 import SwiftUI
 
-struct CodeWordBreakerView: View {
-    // MARK: Data In
-    @Environment(\.words) var words
-    
+struct CodeWordBreakerView: View {    
     // MARK: Data Owned by Me
     @State private var game = CodeBreaker(answer: "AWAIT")
-    @State private var length = 5
     @State private var selection = 0
     @State private var checker = UITextChecker()
-    
-    var newGame: CodeBreaker {
-        CodeBreaker(answer: words.random(length: length) ?? "ERROR")
-    }
     
     // MARK: - Body
     
@@ -29,11 +21,6 @@ struct CodeWordBreakerView: View {
             gameField
         }
         .padding()
-        .onChange(of: words.count) {
-            if game.attempts.count == 0 {
-                game = newGame
-            }
-        }
         
         keyboard
     }

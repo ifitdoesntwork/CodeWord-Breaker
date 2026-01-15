@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct GameChooser: View {
+    // MARK: Data In
+    @Environment(\.words) var words
+    
     // MARK: Data Owned by Me
     @State private var games = [CodeBreaker]()
+    @State private var length = 5
     
     var body: some View {
         NavigationStack {
@@ -22,6 +26,14 @@ struct GameChooser: View {
                 }
             }
             .listStyle(.plain)
+            .toolbar {
+                Button("Add Game", systemImage: "plus") {
+                    games.append(.init(
+                        answer: words.random(length: length) ?? "ERROR"
+                    ))
+                }
+                .disabled(words.count == .zero)
+            }
         }
     }
 }
