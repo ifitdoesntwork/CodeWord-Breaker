@@ -46,17 +46,13 @@ struct GameChooser: View {
                 CodeWordBreakerView(game: $games[index])
             }
         } label: {
-            if let lastAttempt = game.attempts.last {
-                CodeView(
-                    code: lastAttempt,
-                    masterCode: game.masterCode
-                )
-                .overlay {
-                    Color.clear
-                        .contentShape(Rectangle())
-                }
-            } else {
-                Text("No attempts yet")
+            CodeView(
+                code: game.attempts.last ?? game.masterCode,
+                masterCode: game.masterCode
+            )
+            .overlay {
+                Color.clear
+                    .contentShape(Rectangle())
             }
         }
     }

@@ -43,14 +43,8 @@ struct CodeView: View {
             }
         }
         .onChange(of: code.isHidden) { configureCelebration(isHidden: $1) }
-        .onAppear {
-            if code.kind == .master(isHidden: false) {
-                configureCelebration(isHidden: false)
-            }
-        }
-        .onDisappear {
-            celebration = nil
-        }
+        .onAppear { configureCelebration() }
+        .onDisappear { celebration = nil }
     }
     
     func peg(at index: Int) -> some View {
@@ -80,8 +74,11 @@ struct CodeView: View {
         .animation(.selection, value: selection)
     }
     
-    func configureCelebration(isHidden: Bool) {
-        guard !isHidden else {
+    func configureCelebration(isHidden: Bool = false) {
+        guard
+            !isHidden,
+            code.kind == .master(isHidden: false)
+        else {
             celebration = nil
             return
         }
@@ -90,7 +87,7 @@ struct CodeView: View {
             celebration = ((celebration ?? -1) + 1) % code.pegs.count
         } completion: {
             if celebration != nil {
-                configureCelebration(isHidden: false)
+                configureCelebration()
             }
         }
     }
