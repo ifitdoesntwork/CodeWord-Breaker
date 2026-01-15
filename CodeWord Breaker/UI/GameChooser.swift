@@ -14,7 +14,10 @@ struct GameChooser: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(games) { game in
+                ForEach(
+                    games
+                        .sorted { $0.lastAttemptTime > $1.lastAttemptTime }
+                ) { game in
                     Text(game.attempts.last?.word ?? "No attempts yet")
                 }
             }

@@ -13,6 +13,7 @@ struct CodeBreaker {
     var masterCode: Code
     var guess: Code
     var attempts = [Code]()
+    var lastAttemptTime: Date
     
     init(answer: String) {
         masterCode = .init(
@@ -23,6 +24,7 @@ struct CodeBreaker {
             kind: .guess,
             pegs: .init(repeating: .missing, count: answer.count)
         )
+        lastAttemptTime = .now
         print(masterCode)
     }
     
@@ -34,6 +36,7 @@ struct CodeBreaker {
         var attempt = guess
         attempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(attempt)
+        lastAttemptTime = .now
         
         guess.reset()
         
