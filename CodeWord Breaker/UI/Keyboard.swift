@@ -24,7 +24,7 @@ struct Keyboard: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: .zero) {
+        HStack {
             VStack(spacing: .zero) {
                 ForEach(["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"], id: \.self) { row in
                     HStack(spacing: .zero) {
@@ -38,11 +38,12 @@ struct Keyboard: View {
             
             ancillaries
         }
+        .aspectRatio(11/3, contentMode: .fit)
     }
     
     func view(for key: Peg) -> some View {
         Color.clear
-            .aspectRatio(contentMode: .fit)
+            .aspectRatio(1, contentMode: .fit)
             .overlay {
                 Button {
                     actions.onChoose?(key)
@@ -58,14 +59,12 @@ struct Keyboard: View {
         VStack {
             Button("⌫", action: actions.onBackspace)
                 .flexibleSystemFont()
-                .frame(width: 40, height: 40)
             Spacer()
-                .aspectRatio(10, contentMode: .fit)
             Button("↩︎", action: actions.onReturn)
                 .disabled(!canReturn)
                 .flexibleSystemFont()
-                .frame(width: 40, height: 40)
         }
+        .aspectRatio(1/3, contentMode: .fit)
     }
 }
 

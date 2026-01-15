@@ -13,9 +13,8 @@ struct CodeWordBreakerView: View {
     
     // MARK: Data Owned by Me
     @State private var game = CodeBreaker(answer: "AWAIT")
-    @State private var length = 3
+    @State private var length = 5
     @State private var selection = 0
-    @State private var hidesMasterCode = false
     @State private var checker = UITextChecker()
     
     var newGame: CodeBreaker {
@@ -26,8 +25,7 @@ struct CodeWordBreakerView: View {
     
     var body: some View {
         VStack {
-            menu
-            CodeView(code: game.masterCode, hidesMasterCode: $hidesMasterCode)
+            CodeView(code: game.masterCode)
             gameField
         }
         .padding()
@@ -38,34 +36,6 @@ struct CodeWordBreakerView: View {
         }
         
         keyboard
-    }
-    
-    @ViewBuilder
-    var menu: some View {
-        HStack {
-            Picker("Letters:", selection: $length) {
-                ForEach(3..<7) {
-                    Text($0.description).tag($0)
-                }
-            }
-            .pickerStyle(.segmented)
-            .onChange(of: length, restart)
-            
-            Button(
-                "Restart",
-                systemImage: "arrow.circlepath",
-                action: restart
-            )
-        }
-    }
-    
-    func restart() {
-        hidesMasterCode = true
-        withAnimation(.restart) {
-            hidesMasterCode = false
-            selection = .zero
-            game = newGame
-        }
     }
     
     var gameField: some View {

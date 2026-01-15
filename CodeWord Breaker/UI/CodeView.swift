@@ -14,7 +14,6 @@ struct CodeView: View {
     
     // MARK: Data Shared with Me
     @Binding var selection: Int
-    @Binding var hidesMasterCode: Bool
     
     // MARK: Data Owned by Me
     @State var celebration: Int?
@@ -23,12 +22,10 @@ struct CodeView: View {
     init(
         code: Code,
         masterCode: Code? = nil,
-        selection: Binding<Int> = .constant(-1),
-        hidesMasterCode: Binding<Bool> = .constant(false)
+        selection: Binding<Int> = .constant(-1)
     ) {
         self.code = code
         self._selection = selection
-        self._hidesMasterCode = hidesMasterCode
         self.masterCode = masterCode
     }
     
@@ -49,11 +46,8 @@ struct CodeView: View {
     }
     
     func peg(at index: Int) -> some View {
-        let hidesCode = code.isHidden
-        || (code.kind == .master(isHidden: false) && hidesMasterCode)
-        
-        return PegView(
-            peg: hidesCode ? .missing : code.pegs[index],
+        PegView(
+            peg: code.isHidden ? .missing : code.pegs[index],
             match: masterCode
                 .map { code.match(against: $0)[index] }
         )
