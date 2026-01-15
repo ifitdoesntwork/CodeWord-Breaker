@@ -46,13 +46,16 @@ struct GameChooser: View {
                 CodeWordBreakerView(game: $games[index])
             }
         } label: {
-            CodeView(
-                code: game.attempts.last ?? game.masterCode,
-                masterCode: game.masterCode
-            )
-            .overlay {
-                Color.clear
-                    .contentShape(Rectangle())
+            VStack(alignment: .leading) {
+                CodeView(
+                    code: game.attempts.last ?? game.masterCode,
+                    masterCode: game.masterCode
+                )
+                .overlay {
+                    Color.clear
+                        .contentShape(Rectangle())
+                }
+                Text("^[\(game.attempts.count) attempt](inflect: true)")
             }
         }
     }
