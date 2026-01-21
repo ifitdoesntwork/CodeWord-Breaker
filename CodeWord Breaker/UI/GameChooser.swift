@@ -47,7 +47,7 @@ struct GameChooser: View {
     @ViewBuilder
     var gameView: some View {
         if let index = games.firstIndex(where: { $0.id == selection }) {
-            CodeWordBreakerView(game: $games[index])
+            CodeWordBreakerView(game: games[index])
         } else {
             Text("Choose a game!")
         }

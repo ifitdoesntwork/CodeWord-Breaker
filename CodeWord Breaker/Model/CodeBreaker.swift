@@ -9,7 +9,7 @@ import Foundation
 
 typealias Peg = String
 
-struct CodeBreaker {
+@Observable final class CodeBreaker {
     var masterCode: Code
     var guess: Code
     var attempts = [Code]()
@@ -32,7 +32,7 @@ struct CodeBreaker {
         attempts.last?.pegs == masterCode.pegs
     }
     
-    mutating func attemptGuess() {
+    func attemptGuess() {
         var attempt = guess
         attempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(attempt)
@@ -45,7 +45,7 @@ struct CodeBreaker {
         }
     }
     
-    mutating func setGuessPeg(_ peg: Peg, at index: Int) {
+    func setGuessPeg(_ peg: Peg, at index: Int) {
         guard guess.pegs.indices.contains(index) else {
             return
         }

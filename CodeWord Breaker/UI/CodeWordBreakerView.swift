@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CodeWordBreakerView: View {
     // MARK: Data Shared with Me
-    @Binding var game: CodeBreaker
+    let game: CodeBreaker
     
     // MARK: Data Owned by Me
     @State private var selection = 0
@@ -79,5 +79,5 @@ struct CodeWordBreakerView: View {
 #Preview {
     @Previewable @State var game = CodeBreaker(answer: "AWAIT")
     
-    CodeWordBreakerView(game: $game)
+    CodeWordBreakerView(game: game)
 }
