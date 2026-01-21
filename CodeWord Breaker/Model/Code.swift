@@ -75,7 +75,7 @@ struct Code {
     }
 }
 
-enum Match: Comparable {
+enum Match: Comparable, CaseIterable {
     case exact
     case inexact
     case noMatch

@@ -10,6 +10,7 @@ import SwiftUI
 struct Keyboard: View {
     // MARK: Data In
     let canReturn: Bool
+    @Environment(\.settings) var settings
     
     // MARK: Data In Function
     var match: (Peg) -> Match?
@@ -50,7 +51,11 @@ struct Keyboard: View {
                 } label: {
                     Text(key)
                         .flexibleSystemFont()
-                        .foregroundStyle(match(key).color)
+                        .foregroundStyle(
+                            match(key)
+                                .flatMap { settings.colors[$0] }
+                            ?? .accentColor
+                        )
                 }
             }
     }

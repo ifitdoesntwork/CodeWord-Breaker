@@ -51,17 +51,31 @@ extension Color {
     }
 }
 
-extension Match? {
-    var color: Color {
+extension Match {
+    var title: String {
         switch self {
-        case .noMatch:
-            .red
         case .exact:
-            .green
+            "Exact"
         case .inexact:
-            .orange
-        case .none:
-            .primary
+            "Inexact"
+        case .noMatch:
+            "No Match"
+        }
+    }
+}
+
+extension PegShape {
+    @ViewBuilder
+    var view: some View {
+        switch self {
+        case .rectangular:
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(lineWidth: 2)
+        case .circular:
+            Circle()
+                .strokeBorder(lineWidth: 2)
+        case .empty:
+            Color.clear
         }
     }
 }

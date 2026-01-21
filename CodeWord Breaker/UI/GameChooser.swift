@@ -9,12 +9,13 @@ import SwiftUI
 
 struct GameChooser: View {
     // MARK: Data In
+    @Environment(\.settings) var settings
     @Environment(\.words) var words
     
     // MARK: Data Owned by Me
     @State private var games = [CodeBreaker]()
     @State private var selection: CodeBreaker.ID?
-    @State private var length = 5
+    @State private var showsSettings = false
     
     var body: some View {
         NavigationSplitView {
@@ -25,8 +26,17 @@ struct GameChooser: View {
                 NavigationLink { gameView } label: { summary(of: game) }
             }
             .listStyle(.plain)
+            .navigationTitle("Games")
             .toolbar {
-                addGameButton
+                ToolbarItem(placement: .topBarLeading) {
+                    settingsButton
+                        .sheet(isPresented: $showsSettings) {
+                            SettingsEditor()
+                        }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    addGameButton
+                }
             }
         } detail: {
             gameView
@@ -57,11 +67,19 @@ struct GameChooser: View {
         }
     }
     
+    var settingsButton: some View {
+        Button("Settings", systemImage: "gear") {
+            showsSettings = true
+        }
+    }
+    
     var addGameButton: some View {
         Button("Add Game", systemImage: "plus") {
             withAnimation {
                 games.append(.init(
-                    answer: words.random(length: length) ?? "ERROR"
+                    answer: words
+                        .random(length: settings.wordLength)
+                    ?? "ERROR"
                 ))
             }
             if games.count == 1 {
