@@ -17,27 +17,29 @@ struct GameChooser: View {
     @State private var selection: CodeBreaker.ID?
     @State private var showsSettings = false
     
+    var sortedGames: [CodeBreaker] {
+        get {
+            games
+                .sorted { $0.lastAttemptTime > $1.lastAttemptTime }
+        }
+        nonmutating set {
+            games = newValue
+        }
+    }
+    
     var body: some View {
         NavigationSplitView {
-            List(
-                games.sorted { $0.lastAttemptTime > $1.lastAttemptTime },
-                selection: $selection
-            ) { game in
-                NavigationLink { gameView } label: { summary(of: game) }
+            List(selection: $selection) {
+                ForEach(sortedGames) { game in
+                    NavigationLink { gameView } label: { summary(of: game) }
+                }
+                .onDelete {
+                    sortedGames.remove(atOffsets: $0)
+                }
             }
             .listStyle(.plain)
             .navigationTitle("Games")
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    settingsButton
-                        .sheet(isPresented: $showsSettings) {
-                            SettingsEditor()
-                        }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    addGameButton
-                }
-            }
+            .toolbar { gameListEditor }
             .onChange(of: words.count, addSampleGames)
         } detail: {
             gameView
@@ -80,6 +82,20 @@ struct GameChooser: View {
     var settingsButton: some View {
         Button("Settings", systemImage: "gear") {
             showsSettings = true
+        }
+    }
+    
+    @ToolbarContentBuilder
+    var gameListEditor: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            settingsButton
+                .sheet(isPresented: $showsSettings) {
+                    SettingsEditor()
+                }
+        }
+        ToolbarItemGroup {
+            addGameButton
+            EditButton()
         }
     }
     
