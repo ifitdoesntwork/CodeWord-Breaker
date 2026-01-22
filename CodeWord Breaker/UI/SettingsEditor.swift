@@ -32,11 +32,13 @@ struct SettingsEditor: View {
     var wordLength: some View {
         @Bindable var settings = settings
         
-        Stepper(
-            "Word Length: \(settings.wordLength)",
-            value: $settings.wordLength,
-            in: 3...6
-        )
+        Section("Word Length") {
+            Stepper(
+                "\(settings.wordLength)",
+                value: $settings.wordLength,
+                in: 3...6
+            )
+        }
     }
     
     @ViewBuilder

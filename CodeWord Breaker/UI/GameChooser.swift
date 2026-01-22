@@ -15,8 +15,8 @@ struct GameChooser: View {
     // MARK: Data Owned by Me
     @State private var games = [CodeBreaker]()
     @State private var selection: CodeBreaker.ID?
-    @State private var confirmationGameId: CodeBreaker.ID?
     @State private var showsSettings = false
+    @State private var showsConfirmation = false
     
     var sortedGames: [CodeBreaker] {
         get {
@@ -32,9 +32,7 @@ struct GameChooser: View {
         NavigationSplitView {
             List(selection: $selection) {
                 ForEach(sortedGames) { game in
-                    wordLengthSelection(for: game) {
-                        NavigationLink { gameView } label: { summary(of: game) }
-                    }
+                    NavigationLink { gameView } label: { summary(of: game) }
                 }
                 .onDelete {
                     sortedGames.remove(atOffsets: $0)
@@ -104,16 +102,34 @@ struct GameChooser: View {
     
     var addGameButton: some View {
         Button("Add Game", systemImage: "plus") {
-            withAnimation {
-                games.append(.init(
-                    answer: randomWord(ofLength: settings.wordLength)
-                ))
-            }
-            if games.count == 1 {
-                selection = games.first?.id
+            addGame(wordLength: settings.wordLength)
+        }
+        .onLongPress {
+            showsConfirmation = true
+        }
+        .confirmationDialog(
+            "Word Length",
+            isPresented: $showsConfirmation,
+            titleVisibility: .visible
+        ) {
+            ForEach(3..<7) { length in
+                Button("\(length)") {
+                    addGame(wordLength: length)
+                }
             }
         }
         .disabled(words.count == .zero)
+    }
+    
+    func addGame(wordLength: Int) {
+        withAnimation {
+            games.append(.init(
+                answer: randomWord(ofLength: wordLength)
+            ))
+        }
+        if games.count == 1 {
+            selection = games.first?.id
+        }
     }
     
     func addSampleGames() {
@@ -141,36 +157,6 @@ struct GameChooser: View {
         words
             .random(length: length)
         ?? "ERROR"
-    }
-    
-    func wordLengthSelection(
-        for game: CodeBreaker,
-        link: () -> some View
-    ) -> some View {
-        link()
-            .contentShape(Rectangle())
-            .onTapGesture(count: game.isNew ? 1 : .max) {
-                confirmationGameId = game.id
-            }
-            .confirmationDialog(
-                "Word Length",
-                isPresented: .init(
-                    get: { confirmationGameId == game.id },
-                    set: { _ in confirmationGameId = nil }
-                ),
-                titleVisibility: .visible
-            ) {
-                ForEach(3..<7) { length in
-                    Button("\(length)") {
-                        let replacement = CodeBreaker(
-                            answer: randomWord(ofLength: length)
-                        )
-                        games.removeAll { $0.id == game.id }
-                        games.append(replacement)
-                        selection = replacement.id
-                    }
-                }
-            }
     }
 }
 

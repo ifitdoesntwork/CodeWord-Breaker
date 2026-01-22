@@ -79,3 +79,54 @@ extension PegShape {
         }
     }
 }
+
+// MARK: - Long Press
+
+// Source - https://stackoverflow.com/a/76412638
+// Posted by Steve Barnes
+// Retrieved 2026-01-24, License - CC BY-SA 4.0
+
+extension View {
+    func onLongPress(
+        action: @escaping () -> ()
+    ) -> some View {
+        modifier(SupportsLongPressModifier(action: action))
+    }
+}
+
+struct SupportsLongPressModifier: ViewModifier {
+    let action: () -> ()
+    
+    func body(content: Content) -> some View {
+        content
+            .buttonStyle(SupportsLongPress(action: action))
+    }
+}
+
+struct SupportsLongPress: PrimitiveButtonStyle {
+    let action: () -> ()
+    @State var isPressed: Bool = false
+    
+    func makeBody(configuration: Configuration) -> some View {
+        let result = configuration.label
+            .opacity(isPressed ? 0.25 : 1)
+            .onTapGesture {
+                configuration.trigger()
+            }
+            .onLongPressGesture(
+                perform: {
+                    action()
+                },
+                onPressingChanged: { pressing in
+                    isPressed = pressing
+                }
+            )
+        
+        if #available(iOS 26.0, *) {
+            result
+        } else {
+            result
+                .foregroundStyle(Color.accentColor)
+        }
+    }
+}
