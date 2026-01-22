@@ -21,34 +21,58 @@ struct ElapsedTime: View {
     }
     
     var body: some View {
-        if let endTime {
-            Text(endTime, format: format)
-        } else {
-            if startTime != nil {
-                Text(TimeDataSource<Date>.currentDate, format: format)
+        Group {
+            if elapsedTime == .zero && startTime == nil {
+                Text("-:--") // new game
+            } else if let endTime {
+                Text(endTime, format: format) // ended
+            } else if startTime == nil {
+                Text(.now, format: format) // paused
             } else {
-                Image(systemName: "pause")
+                Text(TimeDataSource<Date>.currentDate, format: format) // running
             }
         }
+        .monospaced()
     }
 }
 
 #Preview {
-    VStack(spacing: 12) {
-        ElapsedTime(
-            startTime: .now,
-            endTime: nil,
-            elapsedTime: 60
-        )
-        ElapsedTime(
-            startTime: nil,
-            endTime: nil,
-            elapsedTime: 60
-        )
-        ElapsedTime(
-            startTime: nil,
-            endTime: .now,
-            elapsedTime: 60
-        )
+    List {
+        HStack {
+            Text("New Game")
+            Spacer()
+            ElapsedTime(
+                startTime: nil,
+                endTime: nil,
+                elapsedTime: .zero
+            )
+        }
+        HStack {
+            Text("Running")
+            Spacer()
+            ElapsedTime(
+                startTime: .now,
+                endTime: nil,
+                elapsedTime: .minute
+            )
+        }
+        HStack {
+            Text("Paused")
+            Spacer()
+            ElapsedTime(
+                startTime: nil,
+                endTime: nil,
+                elapsedTime: .minute
+            )
+        }
+        HStack {
+            Text("Ended")
+            Spacer()
+            ElapsedTime(
+                startTime: nil,
+                endTime: .now,
+                elapsedTime: .minute
+            )
+        }
     }
 }

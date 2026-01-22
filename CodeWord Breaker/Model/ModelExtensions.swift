@@ -17,3 +17,7 @@ extension RangeReplaceableCollection {
         return result
     }
 }
+
+extension TimeInterval {
+    static let minute: Self = 60
+}

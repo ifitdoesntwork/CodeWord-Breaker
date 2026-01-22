@@ -65,7 +65,15 @@ struct GameChooser: View {
                 Color.clear
                     .contentShape(Rectangle())
             }
-            Text("^[\(game.attempts.count) attempt](inflect: true)")
+            HStack {
+                Text("^[\(game.attempts.count) attempt](inflect: true)")
+                Spacer()
+                ElapsedTime(
+                    startTime: game.startTime,
+                    endTime: game.endTime,
+                    elapsedTime: game.elapsedTime
+                )
+            }
         }
     }
     

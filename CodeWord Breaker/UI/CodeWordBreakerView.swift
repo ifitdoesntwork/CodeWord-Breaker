@@ -34,7 +34,6 @@ struct CodeWordBreakerView: View {
                     endTime: game.endTime,
                     elapsedTime: game.elapsedTime
                 )
-                .monospaced()
             }
             .hiddenSharedBackground()
         }
