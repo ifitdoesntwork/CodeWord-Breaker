@@ -12,8 +12,12 @@ typealias Peg = String
 @Observable final class CodeBreaker {
     var masterCode: Code
     var guess: Code
-    var attempts = [Code]()
+    var attempts: [Code]
+    
     var lastAttemptTime: Date
+    var startTime: Date?
+    var endTime: Date?
+    var elapsedTime = TimeInterval.zero
     
     init(
         answer: String,
@@ -55,6 +59,8 @@ typealias Peg = String
         
         if isOver {
             masterCode.kind = .master(isHidden: false)
+            endTime = .now
+            pauseTimer()
         }
     }
     
@@ -79,10 +85,23 @@ typealias Peg = String
                     .first
             }
     }
+    
+    func startTimer() {
+        if startTime == nil, !isOver {
+            startTime = .now
+        }
+    }
+    
+    func pauseTimer() {
+        if let startTime {
+            elapsedTime += Date.now.timeIntervalSince(startTime)
+        }
+        startTime = nil
+    }
 }
 
-extension CodeBreaker: Identifiable {
-    var id: String {
-        masterCode.word
+extension CodeBreaker: Identifiable, Equatable {
+    static func == (lhs: CodeBreaker, rhs: CodeBreaker) -> Bool {
+        lhs.id == rhs.id
     }
 }
