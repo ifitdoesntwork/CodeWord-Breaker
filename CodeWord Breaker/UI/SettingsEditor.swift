@@ -35,7 +35,7 @@ struct SettingsEditor: View {
         Stepper(
             "Word Length: \(settings.wordLength)",
             value: $settings.wordLength,
-            in: 1...5
+            in: 3...6
         )
     }
     

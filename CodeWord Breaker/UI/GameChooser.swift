@@ -15,6 +15,7 @@ struct GameChooser: View {
     // MARK: Data Owned by Me
     @State private var games = [CodeBreaker]()
     @State private var selection: CodeBreaker.ID?
+    @State private var confirmationGameId: CodeBreaker.ID?
     @State private var showsSettings = false
     
     var sortedGames: [CodeBreaker] {
@@ -31,7 +32,9 @@ struct GameChooser: View {
         NavigationSplitView {
             List(selection: $selection) {
                 ForEach(sortedGames) { game in
-                    NavigationLink { gameView } label: { summary(of: game) }
+                    wordLengthSelection(for: game) {
+                        NavigationLink { gameView } label: { summary(of: game) }
+                    }
                 }
                 .onDelete {
                     sortedGames.remove(atOffsets: $0)
@@ -138,6 +141,36 @@ struct GameChooser: View {
         words
             .random(length: length)
         ?? "ERROR"
+    }
+    
+    func wordLengthSelection(
+        for game: CodeBreaker,
+        link: () -> some View
+    ) -> some View {
+        link()
+            .contentShape(Rectangle())
+            .onTapGesture(count: game.isNew ? 1 : .max) {
+                confirmationGameId = game.id
+            }
+            .confirmationDialog(
+                "Word Length",
+                isPresented: .init(
+                    get: { confirmationGameId == game.id },
+                    set: { _ in confirmationGameId = nil }
+                ),
+                titleVisibility: .visible
+            ) {
+                ForEach(3..<7) { length in
+                    Button("\(length)") {
+                        let replacement = CodeBreaker(
+                            answer: randomWord(ofLength: length)
+                        )
+                        games.removeAll { $0.id == game.id }
+                        games.append(replacement)
+                        selection = replacement.id
+                    }
+                }
+            }
     }
 }
 

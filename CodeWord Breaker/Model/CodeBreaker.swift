@@ -47,6 +47,10 @@ typealias Peg = String
         print(masterCode)
     }
     
+    var isNew: Bool {
+        elapsedTime == .zero && attempts.isEmpty
+    }
+    
     var isOver: Bool {
         attempts.last?.pegs == masterCode.pegs
     }
