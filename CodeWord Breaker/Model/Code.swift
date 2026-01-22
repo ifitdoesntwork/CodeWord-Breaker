@@ -73,6 +73,12 @@ struct Code {
                 }
             }
     }
+    
+    func asAttempt(master: Code) -> Self {
+        var attempt = self
+        attempt.kind = .attempt(attempt.match(against: master))
+        return attempt
+    }
 }
 
 enum Match: Comparable, CaseIterable {

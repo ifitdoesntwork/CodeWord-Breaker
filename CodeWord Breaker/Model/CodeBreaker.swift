@@ -15,15 +15,30 @@ typealias Peg = String
     var attempts = [Code]()
     var lastAttemptTime: Date
     
-    init(answer: String) {
-        masterCode = .init(
+    init(
+        answer: String,
+        partialGuess: String = "",
+        attemptWords: [String] = []
+    ) {
+        let master = Code(
             kind: .master(isHidden: true),
             pegs: answer.map(Peg.init)
         )
+        masterCode = master
         guess = .init(
             kind: .guess,
-            pegs: .init(repeating: .missing, count: answer.count)
+            pegs: (0..<answer.count)
+                .map { index in
+                    index < partialGuess.count
+                        ? .init(Array(partialGuess)[index])
+                        : .missing
+                }
         )
+        attempts = attemptWords
+            .map {
+                Code(kind: .guess, pegs: $0.map(Peg.init))
+                    .asAttempt(master: master)
+            }
         lastAttemptTime = .now
         print(masterCode)
     }
@@ -33,9 +48,7 @@ typealias Peg = String
     }
     
     func attemptGuess() {
-        var attempt = guess
-        attempt.kind = .attempt(guess.match(against: masterCode))
-        attempts.append(attempt)
+        attempts.append(guess.asAttempt(master: masterCode))
         lastAttemptTime = .now
         
         guess.reset()

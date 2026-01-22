@@ -38,6 +38,7 @@ struct GameChooser: View {
                     addGameButton
                 }
             }
+            .onChange(of: words.count, addSampleGames)
         } detail: {
             gameView
         }
@@ -59,6 +60,7 @@ struct GameChooser: View {
                 code: game.attempts.last ?? game.masterCode,
                 masterCode: game.masterCode
             )
+            .frame(maxHeight: 40)
             .overlay {
                 Color.clear
                     .contentShape(Rectangle())
@@ -77,9 +79,7 @@ struct GameChooser: View {
         Button("Add Game", systemImage: "plus") {
             withAnimation {
                 games.append(.init(
-                    answer: words
-                        .random(length: settings.wordLength)
-                    ?? "ERROR"
+                    answer: randomWord(ofLength: settings.wordLength)
                 ))
             }
             if games.count == 1 {
@@ -87,6 +87,33 @@ struct GameChooser: View {
             }
         }
         .disabled(words.count == .zero)
+    }
+    
+    func addSampleGames() {
+        if games.isEmpty {
+            (1...5)
+                .forEach { _ in
+                    let answerLength = Int.random(in: 3...6)
+                    let guessLength = Int.random(in: 0...answerLength)
+                    
+                    games.append(.init(
+                        answer: randomWord(ofLength: answerLength),
+                        partialGuess: .init(
+                            randomWord(ofLength: answerLength)
+                                .dropLast(guessLength)
+                        ),
+                        attemptWords: (0...Int.random(in: 0...5))
+                            .map { _ in randomWord(ofLength: answerLength) }
+                            .dropLast()
+                    ))
+                }
+        }
+    }
+    
+    func randomWord(ofLength length: Int) -> String {
+        words
+            .random(length: length)
+        ?? "ERROR"
     }
 }
 
