@@ -58,14 +58,14 @@ struct SettingsEditor: View {
         .pickerStyle(.inline)
     }
     
+    @ViewBuilder
     var matchColors: some View {
+        @Bindable var settings = settings
+        
         Section("Match Colors") {
             ForEach(Match.allCases, id: \.self) { match in
                 ColorPicker(
-                    selection: .init(
-                        get: { settings.colors[match] ?? .clear },
-                        set: { settings.colors[match] = $0 }
-                    ),
+                    selection: $settings.matchColors[decodedFor: match],
                     supportsOpacity: false
                 ) {
                     Text(match.title)

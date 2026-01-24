@@ -15,3 +15,16 @@ struct CodeWordBreakerApp: App {
         }
     }
 }
+
+extension EnvironmentValues {
+    @Entry var settings = Settings(contents: .init(
+        wordLength: 5,
+        pegShape: .empty,
+        matchColors: [
+            .exact: Color.green,
+            .inexact: .orange,
+            .noMatch: .red
+        ]
+        .mapValues(\.hex)
+    ))
+}

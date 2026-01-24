@@ -81,7 +81,7 @@ struct Code {
     }
 }
 
-enum Match: Comparable, CaseIterable {
+enum Match: Comparable, CaseIterable, Codable {
     case exact
     case inexact
     case noMatch

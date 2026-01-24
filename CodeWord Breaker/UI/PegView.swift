@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum PegShape: CaseIterable {
-    case rectangular
-    case circular
-    case empty
-}
-
 struct PegView: View {
     // MARK: Data In
     let peg: Peg
@@ -30,11 +24,31 @@ struct PegView: View {
             }
             .foregroundStyle(
                 match
-                    .flatMap { settings.colors[$0] }
+                    .flatMap { settings.matchColors[decodedFor: $0] }
                 ?? (
                     peg.isEmpty ? .clear : .primary
                 )
             )
+    }
+}
+
+enum PegShape: CaseIterable, Codable {
+    case rectangular
+    case circular
+    case empty
+    
+    @ViewBuilder
+    var view: some View {
+        switch self {
+        case .rectangular:
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(lineWidth: 2)
+        case .circular:
+            Circle()
+                .strokeBorder(lineWidth: 2)
+        case .empty:
+            Color.clear
+        }
     }
 }
 

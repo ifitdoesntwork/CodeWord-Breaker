@@ -49,6 +49,34 @@ extension Color {
     static func gray(_ brightness: CGFloat) -> Color {
         Color(hue: 148/360, saturation: 0, brightness: brightness)
     }
+    
+    init(hex: Int) {
+        self.init(
+            .sRGB,
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 08) & 0xFF) / 255,
+            blue: Double((hex >> 00) & 0xFF) / 255
+        )
+    }
+    
+    var hex: Int {
+        var red = CGFloat.zero
+        var green = CGFloat.zero
+        var blue = CGFloat.zero
+        var alpha = CGFloat.zero
+        
+        UIColor(self)
+            .getRed(
+                &red,
+                green: &green,
+                blue: &blue,
+                alpha: &alpha
+            )
+        
+        return (Int)(red * 255) << 16
+        | (Int)(green * 255) << 08
+        | (Int)(blue * 255) << 00
+    }
 }
 
 extension Match {
@@ -64,18 +92,15 @@ extension Match {
     }
 }
 
-extension PegShape {
-    @ViewBuilder
-    var view: some View {
-        switch self {
-        case .rectangular:
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(lineWidth: 2)
-        case .circular:
-            Circle()
-                .strokeBorder(lineWidth: 2)
-        case .empty:
-            Color.clear
+extension Dictionary where Key == Match, Value == HexColor {
+    subscript(decodedFor match: Match) -> Color {
+        get {
+            self[match]
+                .map(Color.init)
+            ?? .clear
+        }
+        set {
+            self[match] = newValue.hex
         }
     }
 }

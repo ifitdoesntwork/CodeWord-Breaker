@@ -53,7 +53,7 @@ struct Keyboard: View {
                         .flexibleSystemFont()
                         .foregroundStyle(
                             match(key)
-                                .flatMap { settings.colors[$0] }
+                                .map { settings.matchColors[decodedFor: $0] }
                             ?? .accentColor
                         )
                 }
