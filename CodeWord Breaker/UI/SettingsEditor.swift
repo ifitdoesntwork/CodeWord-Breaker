@@ -63,7 +63,7 @@ struct SettingsEditor: View {
         @Bindable var settings = settings
         
         Section("Match Colors") {
-            ForEach(Match.allCases, id: \.self) { match in
+            ForEach(Code.Match.allCases, id: \.self) { match in
                 ColorPicker(
                     selection: $settings.matchColors[decodedFor: match],
                     supportsOpacity: false

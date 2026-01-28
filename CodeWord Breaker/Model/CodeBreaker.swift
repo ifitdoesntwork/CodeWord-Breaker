@@ -6,18 +6,23 @@
 //
 
 import Foundation
+import SwiftData
 
 typealias Peg = String
 
-@Observable final class CodeBreaker {
-    var masterCode: Code
-    var guess: Code
-    var attempts: [Code]
+@Model final class CodeBreaker {
+    @Relationship(deleteRule: .cascade) var masterCode: Code
+    @Relationship(deleteRule: .cascade) var guess: Code
+    @Relationship(deleteRule: .cascade) var _attempts: [Code]
     
     var lastAttemptTime: Date
-    var startTime: Date?
-    var endTime: Date?
+    @Transient var startTime: Date?
     var elapsedTime = TimeInterval.zero
+    
+    var attempts: [Code] {
+        get { _attempts.sorted { $0.timestamp < $1.timestamp } }
+        set { _attempts = newValue }
+    }
     
     init(
         answer: String,
@@ -38,13 +43,13 @@ typealias Peg = String
                         : .missing
                 }
         )
-        attempts = attemptWords
+        _attempts = attemptWords
             .map {
                 Code(kind: .guess, pegs: $0.map(Peg.init))
-                    .asAttempt(master: master)
+                    .asAttempt
             }
         lastAttemptTime = .now
-        print(masterCode)
+        print(masterCode.word)
     }
     
     var isNew: Bool {
@@ -56,14 +61,13 @@ typealias Peg = String
     }
     
     func attemptGuess() {
-        attempts.append(guess.asAttempt(master: masterCode))
+        attempts.append(guess.asAttempt)
         lastAttemptTime = .now
         
         guess.reset()
         
         if isOver {
             masterCode.kind = .master(isHidden: false)
-            endTime = .now
             pauseTimer()
         }
     }
@@ -76,7 +80,7 @@ typealias Peg = String
         guess.pegs[index] = peg
     }
     
-    func bestMatch(for peg: Peg) -> Match? {
+    func bestMatch(for peg: Peg) -> Code.Match? {
         attempts
             .reduce(nil) { result, code in
                 code.pegs
@@ -93,6 +97,7 @@ typealias Peg = String
     func startTimer() {
         if startTime == nil, !isOver {
             startTime = .now
+            elapsedTime += 0.00001
         }
     }
     
@@ -101,11 +106,5 @@ typealias Peg = String
             elapsedTime += Date.now.timeIntervalSince(startTime)
         }
         startTime = nil
-    }
-}
-
-extension CodeBreaker: Identifiable, Equatable {
-    static func == (lhs: CodeBreaker, rhs: CodeBreaker) -> Bool {
-        lhs.id == rhs.id
     }
 }

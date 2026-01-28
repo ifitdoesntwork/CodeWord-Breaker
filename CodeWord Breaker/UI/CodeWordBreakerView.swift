@@ -31,7 +31,7 @@ struct CodeWordBreakerView: View {
             ToolbarItem {
                 ElapsedTime(
                     startTime: game.startTime,
-                    endTime: game.endTime,
+                    isOver: game.isOver,
                     elapsedTime: game.elapsedTime
                 )
             }

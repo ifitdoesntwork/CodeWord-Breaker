@@ -5,37 +5,34 @@
 //  Created by Denis Avdeev on 15.01.2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct GameChooser: View {
     // MARK: Data In
     @Environment(\.settings) var settings
     @Environment(\.words) var words
+    @Environment(\.modelContext) var modelContext
+    
+    // MARK: Data Shared with Me
+    @Query(sort: \CodeBreaker.lastAttemptTime, order: .reverse)
+    private var games: [CodeBreaker]
     
     // MARK: Data Owned by Me
-    @State private var games = [CodeBreaker]()
     @State private var selection: CodeBreaker.ID?
     @State private var showsSettings = false
     @State private var showsConfirmation = false
     
-    var sortedGames: [CodeBreaker] {
-        get {
-            games
-                .sorted { $0.lastAttemptTime > $1.lastAttemptTime }
-        }
-        nonmutating set {
-            games = newValue
-        }
-    }
-    
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
-                ForEach(sortedGames) { game in
+                ForEach(games) { game in
                     NavigationLink { gameView } label: { summary(of: game) }
                 }
                 .onDelete {
-                    sortedGames.remove(atOffsets: $0)
+                    $0.forEach {
+                        modelContext.delete(games[$0])
+                    }
                 }
             }
             .listStyle(.plain)
@@ -73,7 +70,7 @@ struct GameChooser: View {
                 Spacer()
                 ElapsedTime(
                     startTime: game.startTime,
-                    endTime: game.endTime,
+                    isOver: game.isOver,
                     elapsedTime: game.elapsedTime
                 )
             }
@@ -122,33 +119,33 @@ struct GameChooser: View {
     }
     
     func addGame(wordLength: Int) {
-        withAnimation {
-            games.append(.init(
-                answer: randomWord(ofLength: wordLength)
-            ))
-        }
-        if games.count == 1 {
-            selection = games.first?.id
+        let game = CodeBreaker(answer: randomWord(ofLength: wordLength))
+        modelContext.insert(game)
+        if games.count == .zero {
+            selection = game.id
         }
     }
     
     func addSampleGames() {
-        if games.isEmpty {
+        let fetchDescriptor = FetchDescriptor<CodeBreaker>()
+        if (try? modelContext.fetchCount(fetchDescriptor)) == .zero {
             (1...5)
                 .forEach { _ in
                     let answerLength = Int.random(in: 3...6)
                     let guessLength = Int.random(in: 0...answerLength)
                     
-                    games.append(.init(
-                        answer: randomWord(ofLength: answerLength),
-                        partialGuess: .init(
-                            randomWord(ofLength: answerLength)
-                                .dropLast(guessLength)
-                        ),
-                        attemptWords: (0...Int.random(in: 0...5))
-                            .map { _ in randomWord(ofLength: answerLength) }
-                            .dropLast()
-                    ))
+                    modelContext.insert(
+                        CodeBreaker(
+                            answer: randomWord(ofLength: answerLength),
+                            partialGuess: .init(
+                                randomWord(ofLength: answerLength)
+                                    .dropLast(guessLength)
+                            ),
+                            attemptWords: (0...Int.random(in: 0...5))
+                                .map { _ in randomWord(ofLength: answerLength) }
+                                .dropLast()
+                        )
+                    )
                 }
         }
     }
@@ -160,6 +157,6 @@ struct GameChooser: View {
     }
 }
 
-#Preview {
+#Preview(traits: .swiftData) {
     GameChooser()
 }

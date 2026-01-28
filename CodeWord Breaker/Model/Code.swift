@@ -6,21 +6,34 @@
 //
 
 import Foundation
+import SwiftData
 
-struct Code {
+@Model final class Code {
     var kind: Kind
     var pegs: [Peg]
+    var timestamp = Date.now
+    
+    init(kind: Kind, pegs: [Peg]) {
+        self.kind = kind
+        self.pegs = pegs
+    }
     
     var word: String {
         get { pegs.joined() }
         set { pegs = newValue.map(String.init) }
     }
     
-    enum Kind: Equatable {
+    enum Kind: Equatable, Codable {
         case master(isHidden: Bool)
         case guess
-        case attempt([Match])
+        case attempt
         case unknown
+    }
+    
+    enum Match: Comparable, CaseIterable, Codable {
+        case exact
+        case inexact
+        case noMatch
     }
     
     var isHidden: Bool {
@@ -30,15 +43,8 @@ struct Code {
         }
     }
     
-    mutating func reset() {
+    func reset() {
         pegs = .init(repeating: .missing, count: pegs.count)
-    }
-    
-    var matches: [Match]? {
-        switch kind {
-        case .attempt(let matches): matches
-        default: nil
-        }
     }
     
     func match(against otherCode: Code) -> [Match] {
@@ -74,17 +80,9 @@ struct Code {
             }
     }
     
-    func asAttempt(master: Code) -> Self {
-        var attempt = self
-        attempt.kind = .attempt(attempt.match(against: master))
-        return attempt
+    var asAttempt: Self {
+        .init(kind: .attempt, pegs: pegs)
     }
-}
-
-enum Match: Comparable, CaseIterable, Codable {
-    case exact
-    case inexact
-    case noMatch
 }
 
 extension Peg {

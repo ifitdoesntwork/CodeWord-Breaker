@@ -10,7 +10,7 @@ import SwiftUI
 struct PegView: View {
     // MARK: Data In
     let peg: Peg
-    let match: Match?
+    let match: Code.Match?
     @Environment(\.settings) var settings
     
     // MARK: - Body

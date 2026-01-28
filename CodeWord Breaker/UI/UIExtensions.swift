@@ -79,7 +79,7 @@ extension Color {
     }
 }
 
-extension Match {
+extension Code.Match {
     var title: String {
         switch self {
         case .exact:
@@ -92,8 +92,8 @@ extension Match {
     }
 }
 
-extension Dictionary where Key == Match, Value == HexColor {
-    subscript(decodedFor match: Match) -> Color {
+extension Dictionary where Key == Code.Match, Value == HexColor {
+    subscript(decodedFor match: Code.Match) -> Color {
         get {
             self[match]
                 .map(Color.init)

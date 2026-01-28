@@ -15,7 +15,7 @@ final class Settings {
     struct Contents: Codable {
         var wordLength: Int
         var pegShape: PegShape
-        var matchColors: [Match: HexColor]
+        var matchColors: [Code.Match: HexColor]
     }
     
     subscript<T>(

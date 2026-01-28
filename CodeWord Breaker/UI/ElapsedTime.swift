@@ -10,26 +10,24 @@ import SwiftUI
 struct ElapsedTime: View {
     // MARK: Data In
     let startTime: Date?
-    let endTime: Date?
+    let isOver: Bool
     let elapsedTime: TimeInterval
     
     var format: SystemFormatStyle.DateOffset {
         .offset(
-            to: (startTime ?? endTime ?? .now) - elapsedTime,
+            to: (startTime ?? .now) - elapsedTime,
             allowedFields: [.minute, .second]
         )
     }
     
     var body: some View {
         Group {
-            if elapsedTime == .zero && startTime == nil {
-                Text("-:--") // new game
-            } else if let endTime {
-                Text(endTime, format: format) // ended
-            } else if startTime == nil {
-                Text(.now, format: format) // paused
-            } else {
-                Text(TimeDataSource<Date>.currentDate, format: format) // running
+            if elapsedTime == .zero && startTime == nil {   // new game
+                Text("-:--")
+            } else if startTime == nil {                    // paused or over
+                Text(.now, format: format)
+            } else {                                        // running
+                Text(TimeDataSource<Date>.currentDate, format: format)
             }
         }
         .monospaced()
@@ -43,7 +41,7 @@ struct ElapsedTime: View {
             Spacer()
             ElapsedTime(
                 startTime: nil,
-                endTime: nil,
+                isOver: false,
                 elapsedTime: .zero
             )
         }
@@ -52,7 +50,7 @@ struct ElapsedTime: View {
             Spacer()
             ElapsedTime(
                 startTime: .now,
-                endTime: nil,
+                isOver: false,
                 elapsedTime: .minute
             )
         }
@@ -61,16 +59,16 @@ struct ElapsedTime: View {
             Spacer()
             ElapsedTime(
                 startTime: nil,
-                endTime: nil,
+                isOver: false,
                 elapsedTime: .minute
             )
         }
         HStack {
-            Text("Ended")
+            Text("Over")
             Spacer()
             ElapsedTime(
                 startTime: nil,
-                endTime: .now,
+                isOver: true,
                 elapsedTime: .minute
             )
         }

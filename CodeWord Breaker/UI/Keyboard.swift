@@ -13,7 +13,7 @@ struct Keyboard: View {
     @Environment(\.settings) var settings
     
     // MARK: Data In Function
-    var match: (Peg) -> Match?
+    var match: (Peg) -> Code.Match?
     
     // MARK: Data Out Functions
     var actions: (
