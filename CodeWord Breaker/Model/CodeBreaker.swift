@@ -107,4 +107,25 @@ typealias Peg = String
         }
         startTime = nil
     }
+    
+    static func predicate(
+        search: String,
+        showsOnlyCompleted: Bool
+    ) -> Predicate<CodeBreaker> {
+        let search = search.uppercased()
+        let containsWord = #Predicate<CodeBreaker> { game in
+            game.masterCode.word.contains(search)
+            || game._attempts.contains { $0.word.contains(search) }
+            || search.isEmpty
+        }
+        let filtersByCompletion = #Predicate<CodeBreaker> { game in
+            showsOnlyCompleted
+                ? game._attempts.contains { $0.word == game.masterCode.word }
+                : true
+        }
+        return #Predicate<CodeBreaker> { game in
+            containsWord.evaluate(game)
+            && filtersByCompletion.evaluate(game)
+        }
+    }
 }

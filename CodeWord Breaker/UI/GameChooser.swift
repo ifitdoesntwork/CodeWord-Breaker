@@ -17,13 +17,26 @@ struct GameChooser: View {
     @State private var search = ""
     @State private var showsSettings = false
     @State private var showsConfirmation = false
+    @State private var filterOption = GameList.Option.all
     
     var body: some View {
         NavigationSplitView {
+            Picker(
+                "Filter By",
+                selection: $filterOption.animation(.default)
+            ) {
+                ForEach(GameList.Option.allCases, id: \.self) {
+                    Text($0.title)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            
             GameList(
                 selection: $selection,
                 newGameWordLength: $newGameWordLength,
-                containsWord: search
+                containsWord: search,
+                filterBy: filterOption
             )
             .navigationTitle("Games")
             .searchable(text: $search)

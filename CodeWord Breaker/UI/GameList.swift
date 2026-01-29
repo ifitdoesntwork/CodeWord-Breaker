@@ -22,22 +22,34 @@ struct GameList: View {
     init(
         selection: Binding<CodeBreaker?>,
         newGameWordLength: Binding<Int?>,
-        containsWord search: String = ""
+        containsWord search: String = "",
+        filterBy option: Option = .all
     ) {
         _selection = selection
         _newGameWordLength = newGameWordLength
         
-        let search = search.uppercased()
-        let predicate = #Predicate<CodeBreaker> { game in
-            game.masterCode.word.contains(search)
-            || game._attempts.contains { $0.word.contains(search) }
-            || search.isEmpty
-        }
         _games = Query(
-            filter: predicate,
+            filter: CodeBreaker.predicate(
+                search: search,
+                showsOnlyCompleted: option == .completed
+            ),
             sort: \CodeBreaker.lastAttemptTime,
             order: .reverse
         )
+    }
+    
+    enum Option: CaseIterable {
+        case all
+        case completed
+        
+        var title: String {
+            switch self {
+            case .all:
+                "All"
+            case .completed:
+                "Completed"
+            }
+        }
     }
     
     var body: some View {
@@ -56,6 +68,11 @@ struct GameList: View {
         .onChange(of: newGameWordLength) {
             $1.map(addGame)
             newGameWordLength = nil
+        }
+        .onChange(of: games) {
+            if let selection, !games.contains(selection) {
+                self.selection = nil
+            }
         }
     }
     
@@ -129,13 +146,21 @@ struct GameList: View {
     @Previewable @Environment(\.settings) var settings
     @Previewable @State var selection: CodeBreaker?
     @Previewable @State var newGameWordLength: Int?
+    @Previewable @State var showsOnlyCompleted = false
 
     NavigationSplitView {
         GameList(
             selection: $selection,
-            newGameWordLength: $newGameWordLength
+            newGameWordLength: $newGameWordLength,
+            filterBy: showsOnlyCompleted ? .completed : .all
         )
         .toolbar {
+            Button(
+                "Show Completed",
+                systemImage: showsOnlyCompleted ? "flag.fill" : "flag"
+            ) {
+                showsOnlyCompleted.toggle()
+            }
             Button("Add Game", systemImage: "plus") {
                 newGameWordLength = settings.wordLength
             }
