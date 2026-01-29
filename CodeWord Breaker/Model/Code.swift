@@ -10,17 +10,17 @@ import SwiftData
 
 @Model final class Code {
     var kind: Kind
-    var pegs: [Peg]
+    var word: String
     var timestamp = Date.now
     
     init(kind: Kind, pegs: [Peg]) {
         self.kind = kind
-        self.pegs = pegs
+        self.word = pegs.joined()
     }
     
-    var word: String {
-        get { pegs.joined() }
-        set { pegs = newValue.map(String.init) }
+    var pegs: [Peg] {
+        get { word.map(String.init) }
+        set { word = newValue.joined() }
     }
     
     enum Kind: Equatable, Codable {
@@ -86,5 +86,5 @@ import SwiftData
 }
 
 extension Peg {
-    static let missing = ""
+    static let missing = " "
 }
