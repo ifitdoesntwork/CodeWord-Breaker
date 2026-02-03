@@ -5,35 +5,22 @@
 //  Created by Denis Avdeev on 21.01.2026.
 //
 
-import Foundation
+import SwiftData
 
 typealias HexColor = Int
 
-@dynamicMemberLookup @Observable
-final class Settings {
+@Model final class Settings {
+    var wordLength: Int
+    var pegShape: PegShape
+    var matchColors: [Code.Match: HexColor]
     
-    struct Contents: Codable {
-        var wordLength: Int
-        var pegShape: PegShape
-        var matchColors: [Code.Match: HexColor]
+    init(
+        wordLength: Int,
+        pegShape: PegShape,
+        matchColors: [Code.Match : HexColor]
+    ) {
+        self.wordLength = wordLength
+        self.pegShape = pegShape
+        self.matchColors = matchColors
     }
-    
-    subscript<T>(
-        dynamicMember keyPath: WritableKeyPath<Contents, T>
-    ) -> T {
-        get { contents[keyPath: keyPath] }
-        set { contents[keyPath: keyPath] = newValue }
-    }
-    
-    init(contents: Contents) {
-        self.contents = UserDefaults[.settings] ?? contents
-    }
-    
-    private var contents: Contents {
-        didSet { UserDefaults[.settings] = contents }
-    }
-}
-
-extension UserDefaults.CodingKeys {
-    static let settings = Self(stringValue: "Settings")
 }

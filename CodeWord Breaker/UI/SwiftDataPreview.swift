@@ -12,7 +12,7 @@ struct SwiftDataPreview: PreviewModifier {
     
     static func makeSharedContext() async throws -> Context {
         try ModelContainer(
-            for: CodeBreaker.self,
+            for: CodeBreaker.self, Settings.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
     }

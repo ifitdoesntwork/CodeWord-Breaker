@@ -5,11 +5,13 @@
 //  Created by Denis Avdeev on 15.01.2026.
 //
 
+import SwiftData
 import SwiftUI
 
-struct GameChooser: View {
+struct GameChooser: SettingsAwareView {
     // MARK: Data In
-    @Environment(\.settings) var settings
+    @Environment(\.modelContext) var modelContext
+    @Query var settingsFetchResult: [Settings]
     
     // MARK: Data Owned by Me
     @State private var selection: CodeBreaker?
@@ -49,6 +51,9 @@ struct GameChooser: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
+        .onAppear {
+            initializeSettings(in: modelContext)
+        }
     }
     
     @ToolbarContentBuilder
