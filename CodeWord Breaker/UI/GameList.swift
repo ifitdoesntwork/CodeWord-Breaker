@@ -10,6 +10,7 @@ import SwiftUI
 
 struct GameList: View {
     // MARK: Data In
+    @Environment(\.settings) var settings
     @Environment(\.words) var words
     @Environment(\.modelContext) var modelContext
     
@@ -142,6 +143,7 @@ struct GameList: View {
 }
 
 #Preview(traits: .swiftData) {
+    @Previewable @Environment(\.settings) var settings
     @Previewable @State var selection: CodeBreaker?
     @Previewable @State var newGameWordLength: Int?
     @Previewable @State var showsOnlyCompleted = false
@@ -160,7 +162,7 @@ struct GameList: View {
                 showsOnlyCompleted.toggle()
             }
             Button("Add Game", systemImage: "plus") {
-                newGameWordLength = 5
+                newGameWordLength = settings.wordLength
             }
         }
     } detail: {

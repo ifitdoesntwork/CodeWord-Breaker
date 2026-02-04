@@ -5,13 +5,12 @@
 //  Created by Denis Avdeev on 25.12.2025.
 //
 
-import SwiftData
 import SwiftUI
 
-struct Keyboard: SettingsAwareView {
+struct Keyboard: View {
     // MARK: Data In
     let canReturn: Bool
-    @Query var settingsFetchResult: [Settings]
+    @Environment(\.settings) var settings
     
     // MARK: Data In Function
     var match: (Peg) -> Code.Match?

@@ -5,14 +5,13 @@
 //  Created by Denis Avdeev on 25.12.2025.
 //
 
-import SwiftData
 import SwiftUI
 
-struct PegView: SettingsAwareView {
+struct PegView: View {
     // MARK: Data In
     let peg: Peg
     let match: Code.Match?
-    @Query var settingsFetchResult: [Settings]
+    @Environment(\.settings) var settings
     
     // MARK: - Body
     
@@ -53,6 +52,10 @@ enum PegShape: CaseIterable, Codable {
     }
 }
 
-#Preview(traits: .swiftData) {
-    PegView(peg: "A", match: .inexact)
+#Preview {
+    ForEach(PegShape.allCases, id: \.self) { shape in
+        PegView(peg: "A", match: .inexact)
+            .environment(\.settings.pegShape, shape)
+            .padding()
+    }
 }

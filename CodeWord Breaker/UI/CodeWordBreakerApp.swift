@@ -13,7 +13,20 @@ struct CodeWordBreakerApp: App {
     var body: some Scene {
         WindowGroup {
             GameChooser()
-                .modelContainer(for: [CodeBreaker.self, Settings.self])
+                .modelContainer(for: CodeBreaker.self)
         }
     }
+}
+
+extension EnvironmentValues {
+    @Entry var settings = Settings(contents: .init(
+        wordLength: 5,
+        pegShape: .empty,
+        matchColors: [
+            .exact: Color.green,
+            .inexact: .orange,
+            .noMatch: .red
+        ]
+        .mapValues(\.hex)
+    ))
 }

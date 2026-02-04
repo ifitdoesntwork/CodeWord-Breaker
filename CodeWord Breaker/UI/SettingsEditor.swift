@@ -5,13 +5,12 @@
 //  Created by Denis Avdeev on 21.01.2026.
 //
 
-import SwiftData
 import SwiftUI
 
-struct SettingsEditor: SettingsAwareView {
+struct SettingsEditor: View {
     // MARK: Data In
+    @Environment(\.settings) var settings
     @Environment(\.dismiss) var dismiss
-    @Query var settingsFetchResult: [Settings]
     
     var body: some View {
         NavigationStack {
@@ -76,6 +75,6 @@ struct SettingsEditor: SettingsAwareView {
     }
 }
 
-#Preview(traits: .swiftData) {
+#Preview {
     SettingsEditor()
 }
