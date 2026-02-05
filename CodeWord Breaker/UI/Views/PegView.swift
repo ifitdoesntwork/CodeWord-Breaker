@@ -11,7 +11,7 @@ struct PegView: View {
     // MARK: Data In
     let peg: Peg
     let match: Code.Match?
-    @Environment(\.settings) var settings
+    @Environment(\.settings) private var settings
     
     // MARK: - Body
     
@@ -41,14 +41,19 @@ enum PegShape: CaseIterable, Codable {
     var view: some View {
         switch self {
         case .rectangular:
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(lineWidth: 2)
+            RoundedRectangle(cornerRadius: Constants.cornerRadius)
+                .strokeBorder(lineWidth: Constants.lineWidth)
         case .circular:
             Circle()
-                .strokeBorder(lineWidth: 2)
+                .strokeBorder(lineWidth: Constants.lineWidth)
         case .empty:
             Color.clear
         }
+    }
+    
+    struct Constants {
+        static let cornerRadius: CGFloat = 12
+        static let lineWidth: CGFloat = 2
     }
 }
 

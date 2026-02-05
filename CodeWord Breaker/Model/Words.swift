@@ -5,11 +5,7 @@
 //  Created by CS193p Instructor on 4/16/25.
 //
 
-import SwiftUI
-
-extension EnvironmentValues {
-    @Entry var words = Words.shared
-}
+import Foundation
 
 @Observable
 class Words {
@@ -33,20 +29,21 @@ class Words {
                 }
             }
             words = _words
-            if count > 0 {
+            if count > .zero {
                 print("Words loaded \(count) words from \(url?.absoluteString ?? "nil")")
             }
         }
     }
     
+    // MARK: - Behavior
+    
     var count: Int {
         words.values
-            .reduce(0) { $0 + $1.count }
+            .reduce(.zero) { $0 + $1.count }
     }
     
-    func contains(_ word: String) -> Bool {
-        words[word.count]?
-            .contains(word.uppercased()) == true
+    var lengthRange: ClosedRange<Int> {
+        (words.keys.min() ?? .zero)...(words.keys.max() ?? .zero)
     }
 
     func random(length: Int) -> String? {
@@ -56,18 +53,5 @@ class Words {
             print("Words could not find a random word of length \(length)")
         }
         return word
-    }
-}
-
-extension UITextChecker {
-    func isAWord(_ word: String) -> Bool {
-        rangeOfMisspelledWord(
-            in: word,
-            range: NSRange(location: 0, length: word.utf16.count),
-            startingAt: 0,
-            wrap: false,
-            language: "en_US"
-        )
-        .location == NSNotFound
     }
 }

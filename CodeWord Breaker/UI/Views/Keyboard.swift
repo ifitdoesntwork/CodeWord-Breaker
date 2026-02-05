@@ -10,7 +10,7 @@ import SwiftUI
 struct Keyboard: View {
     // MARK: Data In
     let canReturn: Bool
-    @Environment(\.settings) var settings
+    @Environment(\.settings) private var settings
     
     // MARK: Data In Function
     var match: (Peg) -> Code.Match?
@@ -27,7 +27,7 @@ struct Keyboard: View {
     var body: some View {
         HStack {
             VStack(spacing: .zero) {
-                ForEach(["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"], id: \.self) { row in
+                ForEach(Constants.rows, id: \.self) { row in
                     HStack(spacing: .zero) {
                         ForEach(row.map(String.init), id: \.self) { key in
                             view(for: key)
@@ -35,14 +35,24 @@ struct Keyboard: View {
                     }
                 }
             }
-            .aspectRatio(10/3, contentMode: .fit)
+            .aspectRatio(Self.keysAspectRatio, contentMode: .fit)
             
             ancillaries
         }
-        .aspectRatio(11/3, contentMode: .fit)
+        .aspectRatio(Self.aspectRatio, contentMode: .fit)
     }
     
-    func view(for key: Peg) -> some View {
+    static var aspectRatio: CGFloat {
+        CGFloat((Constants.rows.map(\.count).max() ?? .zero) + 1)
+        / CGFloat(Constants.rows.count)
+    }
+    
+    private static var keysAspectRatio: CGFloat {
+        CGFloat(Constants.rows.map(\.count).max() ?? .zero)
+        / CGFloat(Constants.rows.count)
+    }
+    
+    private func view(for key: Peg) -> some View {
         Color.clear
             .aspectRatio(1, contentMode: .fit)
             .overlay {
@@ -60,7 +70,7 @@ struct Keyboard: View {
             }
     }
     
-    var ancillaries: some View {
+    private var ancillaries: some View {
         VStack {
             Button("⌫", action: actions.onBackspace)
                 .flexibleSystemFont()
@@ -69,7 +79,11 @@ struct Keyboard: View {
                 .disabled(!canReturn)
                 .flexibleSystemFont()
         }
-        .aspectRatio(1/3, contentMode: .fit)
+        .aspectRatio(1 / 3, contentMode: .fit)
+    }
+    
+    fileprivate struct Constants {
+        static let rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
     }
 }
 

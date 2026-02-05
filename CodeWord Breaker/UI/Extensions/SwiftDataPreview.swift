@@ -8,7 +8,11 @@
 import SwiftData
 import SwiftUI
 
-struct SwiftDataPreview: PreviewModifier {
+extension PreviewTrait<Preview.ViewTraits> {
+    @MainActor static var swiftData = Self.modifier(SwiftDataPreview())
+}
+
+private struct SwiftDataPreview: PreviewModifier {
     
     static func makeSharedContext() async throws -> Context {
         try ModelContainer(
@@ -20,8 +24,4 @@ struct SwiftDataPreview: PreviewModifier {
     func body(content: Content, context: ModelContainer) -> some View {
         content.modelContainer(context)
     }
-}
-
-extension PreviewTrait<Preview.ViewTraits> {
-    @MainActor static var swiftData = Self.modifier(SwiftDataPreview())
 }

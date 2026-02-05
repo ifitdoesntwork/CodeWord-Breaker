@@ -10,20 +10,19 @@ import SwiftUI
 
 struct GameList: View {
     // MARK: Data In
-    @Environment(\.settings) var settings
-    @Environment(\.words) var words
-    @Environment(\.modelContext) var modelContext
-    
-    // MARK: Data Shared with Me
-    @Binding var selection: CodeBreaker?
-    @Binding var newGameWordLength: Int?
+    @Environment(\.words) private var words
     @Query private var games: [CodeBreaker]
     
+    // MARK: Data Shared with Me
+    @Environment(\.modelContext) private var modelContext
+    @Binding var selection: CodeBreaker?
+    @Binding var newGameWordLength: Int?
+
     init(
         selection: Binding<CodeBreaker?>,
         newGameWordLength: Binding<Int?>,
         containsWord search: String = "",
-        filterBy option: Option = .all
+        filterBy option: Filter = .all
     ) {
         _selection = selection
         _newGameWordLength = newGameWordLength
@@ -38,7 +37,7 @@ struct GameList: View {
         )
     }
     
-    enum Option: CaseIterable {
+    enum Filter: CaseIterable {
         case all
         case completed
         
@@ -51,6 +50,8 @@ struct GameList: View {
             }
         }
     }
+    
+    // MARK: - Body
     
     var body: some View {
         List(selection: $selection) {
@@ -76,13 +77,13 @@ struct GameList: View {
         }
     }
     
-    func summary(of game: CodeBreaker) -> some View {
+    private func summary(of game: CodeBreaker) -> some View {
         VStack(alignment: .leading) {
             CodeView(
                 code: game.attempts.last ?? game.masterCode,
                 masterCode: game.masterCode
             )
-            .frame(maxHeight: 40)
+            .frame(maxHeight: .tappableHeight)
             .overlay {
                 Color.clear
                     .contentShape(Rectangle())
@@ -99,8 +100,8 @@ struct GameList: View {
         }
     }
     
-    func addGame(wordLength: Int) {
-        guard words.count > 0 else {
+    private func addGame(wordLength: Int) {
+        guard words.count > .zero else {
             return
         }
         
@@ -111,13 +112,13 @@ struct GameList: View {
         }
     }
     
-    func addSampleGames() {
-        let fetchDescriptor = FetchDescriptor<CodeBreaker>()
-        if (try? modelContext.fetchCount(fetchDescriptor)) == .zero {
-            (1...5)
+    private func addSampleGames() {
+        if games.isEmpty {
+            (1...Games.count)
                 .forEach { _ in
-                    let answerLength = Int.random(in: 3...6)
+                    let answerLength = Int.random(in: words.lengthRange)
                     let guessLength = Int.random(in: 0...answerLength)
+                    let attemptsCount = Int.random(in: 0...Games.attemptsCount)
                     
                     modelContext.insert(
                         CodeBreaker(
@@ -126,7 +127,7 @@ struct GameList: View {
                                 randomWord(ofLength: answerLength)
                                     .dropLast(guessLength)
                             ),
-                            attemptWords: (0...Int.random(in: 0...5))
+                            attemptWords: (0...attemptsCount)
                                 .map { _ in randomWord(ofLength: answerLength) }
                                 .dropLast()
                         )
@@ -135,10 +136,15 @@ struct GameList: View {
         }
     }
     
-    func randomWord(ofLength length: Int) -> String {
+    private func randomWord(ofLength length: Int) -> String {
         words
             .random(length: length)
         ?? "ERROR"
+    }
+    
+    private struct Games {
+        static let count = 5
+        static let attemptsCount = 5
     }
 }
 

@@ -12,8 +12,12 @@ import SwiftUI
 struct CodeWordBreakerApp: App {
     var body: some Scene {
         WindowGroup {
-            GameChooser()
-                .modelContainer(for: CodeBreaker.self)
+            GeometryReader {
+                GameChooser()
+                    .modelContainer(for: CodeBreaker.self)
+                    .environment(\.sceneFrame, $0.frame(in: .global))
+            }
+            .ignoresSafeArea()
         }
     }
 }
@@ -29,4 +33,6 @@ extension EnvironmentValues {
         ]
         .mapValues(\.hex)
     ))
+    @Entry var sceneFrame = CGRect.zero
+    @Entry var words = Words.shared
 }

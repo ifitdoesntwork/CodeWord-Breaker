@@ -9,7 +9,8 @@ import SwiftUI
 
 struct GameChooser: View {
     // MARK: Data In
-    @Environment(\.settings) var settings
+    @Environment(\.settings) private var settings
+    @Environment(\.words) private var words
     
     // MARK: Data Owned by Me
     @State private var selection: CodeBreaker?
@@ -17,20 +18,13 @@ struct GameChooser: View {
     @State private var search = ""
     @State private var showsSettings = false
     @State private var showsConfirmation = false
-    @State private var filterOption = GameList.Option.all
+    @State private var filterOption = GameList.Filter.all
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationSplitView {
-            Picker(
-                "Filter By",
-                selection: $filterOption.animation(.default)
-            ) {
-                ForEach(GameList.Option.allCases, id: \.self) {
-                    Text($0.title)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
+            filter
             
             GameList(
                 selection: $selection,
@@ -40,6 +34,7 @@ struct GameChooser: View {
             )
             .navigationTitle("Games")
             .searchable(text: $search)
+            .animation(.default, value: search)
             .toolbar { gameListEditor }
         } detail: {
             if let selection {
@@ -51,8 +46,21 @@ struct GameChooser: View {
         .navigationSplitViewStyle(.balanced)
     }
     
+    private var filter: some View {
+        Picker(
+            "Filter By",
+            selection: $filterOption.animation(.default)
+        ) {
+            ForEach(GameList.Filter.allCases, id: \.self) {
+                Text($0.title)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+    }
+    
     @ToolbarContentBuilder
-    var gameListEditor: some ToolbarContent {
+    private var gameListEditor: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             settingsButton
         }
@@ -62,7 +70,7 @@ struct GameChooser: View {
         }
     }
     
-    var settingsButton: some View {
+    private var settingsButton: some View {
         Button("Settings", systemImage: "gear") {
             showsSettings = true
         }
@@ -71,7 +79,7 @@ struct GameChooser: View {
         }
     }
     
-    var addGameButton: some View {
+    private var addGameButton: some View {
         Button("Add Game", systemImage: "plus") {
             newGameWordLength = settings.wordLength
         }
@@ -83,8 +91,8 @@ struct GameChooser: View {
             isPresented: $showsConfirmation,
             titleVisibility: .visible
         ) {
-            ForEach(3..<7) { length in
-                Button("\(length)") {
+            ForEach(words.lengthRange, id: \.self) { length in
+                Button("\(length) letters") {
                     newGameWordLength = length
                 }
             }

@@ -13,24 +13,26 @@ struct ElapsedTime: View {
     let isOver: Bool
     let elapsedTime: TimeInterval
     
-    var format: SystemFormatStyle.DateOffset {
-        .offset(
-            to: (startTime ?? .now) - elapsedTime,
-            allowedFields: [.minute, .second]
-        )
-    }
+    // MARK: - Body
     
     var body: some View {
         Group {
-            if elapsedTime == .zero && startTime == nil {   // new game
+            if elapsedTime == .zero && startTime == nil {               // new game
                 Text("-:--")
-            } else if startTime == nil {                    // paused or over
+            } else if startTime == nil {                                // paused or over
                 Text(.now, format: format)
-            } else {                                        // running
+            } else {                                                    // running
                 Text(TimeDataSource<Date>.currentDate, format: format)
             }
         }
         .monospaced()
+    }
+    
+    private var format: SystemFormatStyle.DateOffset {
+        .offset(
+            to: (startTime ?? .now) - elapsedTime,
+            allowedFields: [.minute, .second]
+        )
     }
 }
 

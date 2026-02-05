@@ -9,8 +9,13 @@ import SwiftUI
 
 struct SettingsEditor: View {
     // MARK: Data In
-    @Environment(\.settings) var settings
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.words) private var words
+    
+    // MARK: Data Shared with Me
+    @Environment(\.settings) private var settings
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -29,20 +34,20 @@ struct SettingsEditor: View {
     }
     
     @ViewBuilder
-    var wordLength: some View {
+    private var wordLength: some View {
         @Bindable var settings = settings
         
         Section("Word Length") {
             Stepper(
-                "\(settings.wordLength)",
+                "\(settings.wordLength) letters",
                 value: $settings.wordLength,
-                in: 3...6
+                in: words.lengthRange
             )
         }
     }
     
     @ViewBuilder
-    var pegShape: some View {
+    private var pegShape: some View {
         @Bindable var settings = settings
         
         Picker(
@@ -52,14 +57,14 @@ struct SettingsEditor: View {
             ForEach(PegShape.allCases, id: \.self) { shape in
                 shape.view
                     .aspectRatio(1, contentMode: .fit)
-                    .frame(maxHeight: 40)
+                    .frame(maxHeight: .tappableHeight)
             }
         }
         .pickerStyle(.inline)
     }
     
     @ViewBuilder
-    var matchColors: some View {
+    private var matchColors: some View {
         @Bindable var settings = settings
         
         Section("Match Colors") {

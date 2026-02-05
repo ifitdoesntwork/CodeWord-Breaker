@@ -16,7 +16,7 @@ struct CodeView: View {
     @Binding var selection: Int
     
     // MARK: Data Owned by Me
-    @State var celebratingIndex: Int?
+    @State private var celebratingIndex: Int?
     @Namespace private var namespace
     
     init(
@@ -47,7 +47,7 @@ struct CodeView: View {
         .onDisappear { configureCelebration(isRunning: false) }
     }
     
-    func peg(at index: Int) -> some View {
+    private func peg(at index: Int) -> some View {
         PegView(
             peg: code.isHidden ? .missing : code.pegs[index],
             match: masterCode
@@ -63,7 +63,7 @@ struct CodeView: View {
         }
     }
     
-    func selection(at index: Int) -> some View {
+    private func selection(at index: Int) -> some View {
         Group {
             if selection == index, code.kind == .guess {
                 Selection.shape
@@ -74,7 +74,7 @@ struct CodeView: View {
         .animation(.selection, value: selection)
     }
     
-    func configureCelebration(isRunning: Bool) {
+    private func configureCelebration(isRunning: Bool) {
         if
             isRunning,
             code.kind == .master(isHidden: false)
@@ -85,7 +85,9 @@ struct CodeView: View {
         }
     }
     
-    func celebrate() {
+    /// Animating letters in turn to celebrate the player triumph.
+    /// Run the preview for a demo.
+    private func celebrate() {
         withAnimation {
             celebratingIndex = ((celebratingIndex ?? -1) + 1) % code.pegs.count
         } completion: {

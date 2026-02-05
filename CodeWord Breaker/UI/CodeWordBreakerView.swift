@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct CodeWordBreakerView: View {
+    // MARK: Data In
+    @Environment(\.sceneFrame) private var sceneFrame
+    
     // MARK: Data Shared with Me
     let game: CodeBreaker
     
@@ -38,10 +41,11 @@ struct CodeWordBreakerView: View {
             .hiddenSharedBackground()
         }
         
-        keyboard
+        animatedKeyboard
     }
     
-    var gameField: some View {
+    @ViewBuilder
+    private var gameField: some View {
         ScrollView {
             if !game.isOver {
                 CodeView(code: game.guess, selection: $selection)
@@ -58,75 +62,43 @@ struct CodeWordBreakerView: View {
     }
     
     @ViewBuilder
-    var keyboard: some View {
+    private var animatedKeyboard: some View {
         if !game.isOver {
-            Keyboard(
-                canReturn: checker.isAWord(game.guess.word.capitalized)
-                    && game.guess.word.count == game.masterCode.word.count,
-                match: game.bestMatch,
-                actions: (
-                    onChoose: { peg in
-                        game.setGuessPeg(peg, at: selection)
-                        selection = (selection + 1) % game.masterCode.pegs.count
-                    },
-                    onBackspace: {
-                        let indexToMove = max(selection - 1, .zero)
-                        game.guess.pegs[indexToMove] = .missing
-                        selection = indexToMove
-                    },
-                    onReturn: {
-                        withAnimation(.guess) {
-                            game.attemptGuess()
-                            selection = 0
-                        }
-                    }
-                )
-            )
-            .transition(.keyboard)
+            GeometryReader {
+                keyboard
+                    .transition(.offset(
+                        x: .zero,
+                        y: sceneFrame.maxY - $0.frame(in: .global).minY
+                    ))
+            }
+            .aspectRatio(Keyboard.aspectRatio, contentMode: .fit)
         }
     }
-}
-
-extension View {
-    func trackElapsedTime(in game: CodeBreaker) -> some View {
-        modifier(ElapsedTimeTracker(game: game))
-    }
-}
-
-struct ElapsedTimeTracker: ViewModifier {
-    @Environment(\.scenePhase) var scenePhase
-    let game: CodeBreaker
     
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                game.startTimer()
-            }
-            .onDisappear {
-                game.pauseTimer()
-            }
-            .onChange(of: game) { oldGame, newGame in
-                oldGame.pauseTimer()
-                newGame.startTimer()
-            }
-            .onChange(of: scenePhase) {
-                switch scenePhase {
-                case .active: game.startTimer()
-                case .background: game.pauseTimer()
-                default: break
+    @ViewBuilder
+    private var keyboard: some View {
+        Keyboard(
+            canReturn: checker.isAWord(game.guess.word.capitalized)
+            && game.guess.word.count == game.masterCode.word.count,
+            match: game.bestMatch,
+            actions: (
+                onChoose: { peg in
+                    game.setGuessPeg(peg, at: selection)
+                    selection = (selection + 1) % game.masterCode.pegs.count
+                },
+                onBackspace: {
+                    let indexToMove = max(selection - 1, .zero)
+                    game.guess.pegs[indexToMove] = .missing
+                    selection = indexToMove
+                },
+                onReturn: {
+                    withAnimation(.guess) {
+                        game.attemptGuess()
+                        selection = 0
+                    }
                 }
-            }
-    }
-}
-
-extension ToolbarItem {
-    @ToolbarContentBuilder
-    func hiddenSharedBackground() -> some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            sharedBackgroundVisibility(.hidden)
-        } else {
-            self
-        }
+            )
+        )
     }
 }
 

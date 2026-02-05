@@ -6,9 +6,8 @@
 //
 
 import Foundation
+import Playgrounds
 import SwiftData
-
-typealias Peg = String
 
 @Model final class CodeBreaker {
     @Relationship(deleteRule: .cascade) var masterCode: Code
@@ -18,11 +17,6 @@ typealias Peg = String
     var lastAttemptTime: Date
     @Transient var startTime: Date?
     var elapsedTime = TimeInterval.zero
-    
-    var attempts: [Code] {
-        get { _attempts.sorted { $0.timestamp < $1.timestamp } }
-        set { _attempts = newValue }
-    }
     
     init(
         answer: String,
@@ -52,8 +46,11 @@ typealias Peg = String
         print(masterCode.word)
     }
     
-    var isNew: Bool {
-        elapsedTime == .zero && attempts.isEmpty
+    // MARK: - Behavior
+    
+    var attempts: [Code] {
+        get { _attempts.sorted { $0.timestamp < $1.timestamp } }
+        set { _attempts = newValue }
     }
     
     var isOver: Bool {
@@ -94,6 +91,11 @@ typealias Peg = String
             }
     }
     
+    func updateElapsedTime() {
+        pauseTimer()
+        startTimer()
+    }
+    
     func startTimer() {
         if startTime == nil, !isOver {
             startTime = .now
@@ -113,19 +115,25 @@ typealias Peg = String
         showsOnlyCompleted: Bool
     ) -> Predicate<CodeBreaker> {
         let search = search.uppercased()
-        let containsWord = #Predicate<CodeBreaker> { game in
-            game.masterCode.word.contains(search)
-            || game._attempts.contains { $0.word.contains(search) }
-            || search.isEmpty
-        }
-        let filtersByCompletion = #Predicate<CodeBreaker> { game in
-            showsOnlyCompleted
-                ? game._attempts.contains { $0.word == game.masterCode.word }
-                : true
-        }
         return #Predicate<CodeBreaker> { game in
-            containsWord.evaluate(game)
-            && filtersByCompletion.evaluate(game)
+            (
+                game.masterCode.word.contains(search)
+                || game._attempts.contains { $0.word.contains(search) }
+                || search.isEmpty
+            )
+            && (
+                !showsOnlyCompleted
+                || game._attempts.contains { $0.word == game.masterCode.word }
+            )
         }
     }
+}
+
+#Playground {
+    let game = CodeBreaker(
+        answer: "ANSWER",
+        attemptWords: ["ATTEMPT"]
+    )
+    _ = game.bestMatch(for: "A")
+    _ = game.bestMatch(for: "T")
 }

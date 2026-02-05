@@ -39,6 +39,8 @@ extension UserDefaults {
         }
     }
     
+    /// Make a constant instance of this in an extension to create a key.
+    /// This way key uniqueness is guaranteed.
     struct CodingKeys {
         let stringValue: String
     }
